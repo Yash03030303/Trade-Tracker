@@ -1,0 +1,28 @@
+/* src/components/Layout.css */
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-attachment: fixed;
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 260px;
+  padding: 30px;
+  transition: margin-left 0.3s ease;
+  overflow-y: auto;
+}
+
+/* When sidebar is closed */
+.sidebar.closed ~ .main-content {
+  margin-left: 0;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding: 80px 15px 30px;
+  }
+}
