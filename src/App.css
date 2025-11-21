@@ -9,10 +9,12 @@
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   overflow-x: hidden;
+  background: #f5f6fa;
 }
 
 .App {
   min-height: 100vh;
+  background: #f5f6fa;
 }
 
 /* Card Styles */
@@ -21,11 +23,13 @@ body {
   border-radius: 12px;
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .card-header {
@@ -38,6 +42,7 @@ body {
 .table {
   font-size: 0.9rem;
   margin-bottom: 0;
+  background: white;
 }
 
 .table th {
@@ -90,6 +95,10 @@ body {
   font-weight: 600;
 }
 
+.btn-info {
+  font-weight: 600;
+}
+
 /* Form Styles */
 .form-control:focus,
 .form-select:focus {
@@ -122,6 +131,14 @@ body {
   font-weight: 600;
 }
 
+/* Page Title */
+.page-title {
+  color: #2c3e50;
+  font-weight: 700;
+  margin-bottom: 24px;
+  font-size: 1.8rem;
+}
+
 /* Spinner */
 .spinner-border {
   width: 3rem;
@@ -133,6 +150,29 @@ body {
   border-radius: 10px;
   font-weight: 500;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Fixed Alert Position */
+.alert-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  max-width: 400px;
+}
+
+/* Download Button Group */
+.download-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.download-buttons .btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* Responsive Design */
@@ -149,6 +189,18 @@ body {
     font-size: 0.9rem;
     padding: 8px 16px;
   }
+  
+  .page-title {
+    font-size: 1.4rem;
+  }
+  
+  .download-buttons {
+    flex-direction: column;
+  }
+  
+  .download-buttons .btn {
+    width: 100%;
+  }
 }
 
 /* Loading State */
@@ -163,11 +215,6 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 9999;
-}
-
-/* Smooth Transitions */
-* {
-  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Scrollbar Styling */

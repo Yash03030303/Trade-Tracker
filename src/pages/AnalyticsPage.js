@@ -7,7 +7,7 @@ const AnalyticsPage = ({ trades }) => {
   if (trades.length === 0) {
     return (
       <Container>
-        <h4 className="mb-4 text-white">📈 Analytics</h4>
+        <h4 className="page-title">📈 Analytics</h4>
         <Card className="shadow-sm">
           <Card.Body className="text-center py-5">
             <h5 className="text-muted">No data available</h5>
@@ -50,7 +50,7 @@ const AnalyticsPage = ({ trades }) => {
     ...data
   })).sort((a, b) => b.totalProfit - a.totalProfit);
 
-  // Monthly analysis (simplified - can be enhanced)
+  // Monthly analysis
   const monthlyData = {};
   
   trades.forEach(trade => {
@@ -58,7 +58,7 @@ const AnalyticsPage = ({ trades }) => {
     
     if (status === 'closed' && trade.createdAt) {
       const date = trade.createdAt.toDate();
-      const monthKey = `${date.getMonth() + 1}/${date.getFullYear()}`;
+      const monthKey = `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
       
       if (!monthlyData[monthKey]) {
         monthlyData[monthKey] = {
@@ -74,7 +74,7 @@ const AnalyticsPage = ({ trades }) => {
 
   return (
     <Container>
-      <h4 className="mb-4 text-white">📈 Detailed Analytics</h4>
+      <h4 className="page-title">📈 Detailed Analytics</h4>
       
       <Row className="mb-4">
         <Col md={12}>
@@ -82,35 +82,37 @@ const AnalyticsPage = ({ trades }) => {
             <Card.Header className="bg-primary text-white">
               <h5 className="mb-0">Stock-wise Performance</h5>
             </Card.Header>
-            <Card.Body>
-              <Table striped hover responsive>
-                <thead>
-                  <tr>
-                    <th>Stock</th>
-                    <th>Total Trades</th>
-                    <th>Closed</th>
-                    <th>Holding</th>
-                    <th>Total Quantity</th>
-                    <th>Net P/L</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stockWiseArray.map((item) => (
-                    <tr key={item.stock}>
-                      <td><strong>{item.stock}</strong></td>
-                      <td>{item.totalTrades}</td>
-                      <td>{item.closedTrades}</td>
-                      <td>{item.holdingTrades}</td>
-                      <td>{item.totalQuantity}</td>
-                      <td>
-                        <strong className={item.totalProfit >= 0 ? 'text-success' : 'text-danger'}>
-                          ₹{item.totalProfit.toFixed(2)}
-                        </strong>
-                      </td>
+            <Card.Body className="p-0">
+              <div className="table-responsive">
+                <Table striped hover className="mb-0">
+                  <thead>
+                    <tr>
+                      <th>Stock</th>
+                      <th>Total Trades</th>
+                      <th>Closed</th>
+                      <th>Holding</th>
+                      <th>Total Quantity</th>
+                      <th>Net P/L</th>
                     </tr>
-                  ))}
-                </tbody>
-              </Table>
+                  </thead>
+                  <tbody>
+                    {stockWiseArray.map((item) => (
+                      <tr key={item.stock}>
+                        <td><strong>{item.stock}</strong></td>
+                        <td>{item.totalTrades}</td>
+                        <td>{item.closedTrades}</td>
+                        <td>{item.holdingTrades}</td>
+                        <td>{item.totalQuantity}</td>
+                        <td>
+                          <strong className={item.totalProfit >= 0 ? 'text-success' : 'text-danger'}>
+                            ₹{item.totalProfit.toFixed(2)}
+                          </strong>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </div>
             </Card.Body>
           </Card>
         </Col>
@@ -123,29 +125,31 @@ const AnalyticsPage = ({ trades }) => {
               <Card.Header className="bg-success text-white">
                 <h5 className="mb-0">Monthly Performance</h5>
               </Card.Header>
-              <Card.Body>
-                <Table striped hover>
-                  <thead>
-                    <tr>
-                      <th>Month</th>
-                      <th>Trades</th>
-                      <th>Net P/L</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Object.entries(monthlyData).map(([month, data]) => (
-                      <tr key={month}>
-                        <td><strong>{month}</strong></td>
-                        <td>{data.trades}</td>
-                        <td>
-                          <strong className={data.profit >= 0 ? 'text-success' : 'text-danger'}>
-                            ₹{data.profit.toFixed(2)}
-                          </strong>
-                        </td>
+              <Card.Body className="p-0">
+                <div className="table-responsive">
+                  <Table striped hover className="mb-0">
+                    <thead>
+                      <tr>
+                        <th>Month</th>
+                        <th>Trades</th>
+                        <th>Net P/L</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </Table>
+                    </thead>
+                    <tbody>
+                      {Object.entries(monthlyData).map(([month, data]) => (
+                        <tr key={month}>
+                          <td><strong>{month}</strong></td>
+                          <td>{data.trades}</td>
+                          <td>
+                            <strong className={data.profit >= 0 ? 'text-success' : 'text-danger'}>
+                              ₹{data.profit.toFixed(2)}
+                            </strong>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                </div>
               </Card.Body>
             </Card>
           </Col>

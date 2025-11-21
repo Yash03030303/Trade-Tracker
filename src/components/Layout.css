@@ -3,8 +3,7 @@
 .layout {
   display: flex;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  background-attachment: fixed;
+  background: #f5f6fa;
 }
 
 .main-content {
@@ -13,6 +12,13 @@
   padding: 30px;
   transition: margin-left 0.3s ease;
   overflow-y: auto;
+  min-height: 100vh;
+  background: #f5f6fa;
+}
+
+/* Adjust content area when sidebar is visible */
+.sidebar.open ~ .main-content {
+  margin-left: 260px;
 }
 
 /* When sidebar is closed */
@@ -24,5 +30,9 @@
   .main-content {
     margin-left: 0;
     padding: 80px 15px 30px;
+  }
+  
+  .sidebar.open ~ .main-content {
+    margin-left: 0;
   }
 }
