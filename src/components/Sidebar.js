@@ -14,6 +14,7 @@ import {
   faUser
 } from '@fortawesome/free-solid-svg-icons';
 import './Sidebar.css';
+import logo from '../logo.png';
 
 const Sidebar = ({ user }) => {
   const navigate = useNavigate();
@@ -34,13 +35,36 @@ const Sidebar = ({ user }) => {
 
   return (
     <>
-      <button className="sidebar-toggle" onClick={toggleSidebar}>
-        <FontAwesomeIcon icon={isOpen ? faTimes : faBars} />
+      {/* small fixed hamburger visible ONLY when sidebar is closed */}
+      <button
+        className={`sidebar-toggle fixed ${isOpen ? 'hidden' : ''}`}
+        onClick={toggleSidebar}
+        aria-label="Open sidebar"
+      >
+        <FontAwesomeIcon icon={faBars} />
       </button>
 
-      <div className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
+      {/* Backdrop for mobile - visible when open */}
+      <div
+        className={`sidebar-backdrop ${isOpen ? 'visible' : ''}`}
+        onClick={() => setIsOpen(false)}
+      />
+
+      <aside className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
         <div className="sidebar-header">
-          <h4>📈 Trading Tracker</h4>
+          <div className="brand">
+            <img src={logo} alt="Logo" className="sidebar-logo" />
+            <div className="brand-text">
+              <h4>Trading Tracker</h4>
+              <small className="tagline">Track your trades & analytics</small>
+            </div>
+          </div>
+
+          {/* close button inside header when sidebar is open */}
+          <button className="sidebar-toggle header-toggle" onClick={toggleSidebar} aria-label="Close sidebar">
+            <FontAwesomeIcon icon={faTimes} />
+          </button>
+
           {user && (
             <div className="user-info">
               <FontAwesomeIcon icon={faUser} className="me-2" />
@@ -49,13 +73,13 @@ const Sidebar = ({ user }) => {
           )}
         </div>
 
-        <nav className="sidebar-nav">
+        <nav className="sidebar-nav" aria-label="Main navigation">
           <NavLink 
             to="/dashboard" 
             className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}
           >
             <FontAwesomeIcon icon={faChartLine} className="nav-icon" />
-            <span>Dashboard</span>
+            <span className="nav-text">Dashboard</span>
           </NavLink>
 
           <NavLink 
@@ -63,7 +87,7 @@ const Sidebar = ({ user }) => {
             className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}
           >
             <FontAwesomeIcon icon={faPlus} className="nav-icon" />
-            <span>Add Trade</span>
+            <span className="nav-text">Add Trade</span>
           </NavLink>
 
           <NavLink 
@@ -71,7 +95,7 @@ const Sidebar = ({ user }) => {
             className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}
           >
             <FontAwesomeIcon icon={faList} className="nav-icon" />
-            <span>All Trades</span>
+            <span className="nav-text">All Trades</span>
           </NavLink>
 
           <NavLink 
@@ -79,7 +103,7 @@ const Sidebar = ({ user }) => {
             className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}
           >
             <FontAwesomeIcon icon={faChartBar} className="nav-icon" />
-            <span>Analytics</span>
+            <span className="nav-text">Analytics</span>
           </NavLink>
         </nav>
 
@@ -89,7 +113,7 @@ const Sidebar = ({ user }) => {
             <span>Logout</span>
           </button>
         </div>
-      </div>
+      </aside>
     </>
   );
 };

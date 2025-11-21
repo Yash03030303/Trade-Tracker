@@ -8,31 +8,24 @@
 
 .main-content {
   flex: 1;
-  margin-left: 260px;
+  margin-left: 260px; /* default - keep in sync with --sidebar-width */
   padding: 30px;
-  transition: margin-left 0.3s ease;
+  transition: margin-left 0.28s ease;
   overflow-y: auto;
   min-height: 100vh;
   background: #f5f6fa;
 }
 
-/* Adjust content area when sidebar is visible */
-.sidebar.open ~ .main-content {
-  margin-left: 260px;
-}
-
-/* When sidebar is closed */
+/* These sibling selectors require Sidebar to appear BEFORE the main content in DOM,
+   which is the case in your Layout component. */
 .sidebar.closed ~ .main-content {
   margin-left: 0;
 }
 
-@media (max-width: 768px) {
+/* On smaller screens keep content full width and allow overlay */
+@media (max-width: 900px) {
   .main-content {
     margin-left: 0;
-    padding: 80px 15px 30px;
-  }
-  
-  .sidebar.open ~ .main-content {
-    margin-left: 0;
+    padding: 80px 16px 30px;
   }
 }

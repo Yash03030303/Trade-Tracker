@@ -17,7 +17,7 @@ const AllTradesPage = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h4 className="page-title mb-0">📋 All Trades</h4>
         
-        {trades.length > 0 && (
+        {trades && trades.length > 0 && (
           <ButtonGroup className="download-buttons">
             <Button 
               variant="success" 

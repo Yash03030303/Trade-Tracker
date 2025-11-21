@@ -18,13 +18,29 @@ const tradesCollection = collection(db, 'trades');
 // Add a new trade (user-specific)
 export const addTrade = async (tradeData, userId) => {
   try {
-    const trade = {
+    // copy payload so we can convert date strings to Timestamp if provided
+    const payload = {
       ...tradeData,
       userId: userId,
       createdAt: Timestamp.now()
     };
-    const docRef = await addDoc(tradesCollection, trade);
-    return { id: docRef.id, ...trade };
+
+    // convert date strings (YYYY-MM-DD) to Firestore Timestamps when present
+    if (payload.buyDate) {
+      // new Date('YYYY-MM-DD') creates a Date at local midnight — OK for storing
+      payload.buyDate = Timestamp.fromDate(new Date(payload.buyDate));
+    } else {
+      payload.buyDate = null;
+    }
+
+    if (payload.sellDate) {
+      payload.sellDate = Timestamp.fromDate(new Date(payload.sellDate));
+    } else {
+      payload.sellDate = null;
+    }
+
+    const docRef = await addDoc(tradesCollection, payload);
+    return { id: docRef.id, ...payload };
   } catch (error) {
     console.error('Error adding trade:', error);
     throw error;
@@ -64,8 +80,17 @@ export const deleteTrade = async (tradeId) => {
 // Update a trade (for delivery trades when sold)
 export const updateTrade = async (tradeId, updates) => {
   try {
+    // convert any buyDate/sellDate string to Timestamp (if provided in updates)
+    const updatesPayload = { ...updates };
+    if (updatesPayload.buyDate && !(updatesPayload.buyDate instanceof Timestamp)) {
+      updatesPayload.buyDate = Timestamp.fromDate(new Date(updatesPayload.buyDate));
+    }
+    if (updatesPayload.sellDate && !(updatesPayload.sellDate instanceof Timestamp)) {
+      updatesPayload.sellDate = Timestamp.fromDate(new Date(updatesPayload.sellDate));
+    }
+
     const tradeRef = doc(db, 'trades', tradeId);
-    await updateDoc(tradeRef, updates);
+    await updateDoc(tradeRef, updatesPayload);
   } catch (error) {
     console.error('Error updating trade:', error);
     throw error;
