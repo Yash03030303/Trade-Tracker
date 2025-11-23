@@ -13,131 +13,38 @@ const formatDate = (timestamp) => {
   }
 };
 
-const formatDateISO = (timestamp) => {
-  if (!timestamp) return null;
-  try {
-    return (typeof timestamp.toDate === 'function')
-      ? timestamp.toDate().toISOString()
-      : new Date(timestamp).toISOString();
-  } catch {
-    return null;
-  }
-};
-
 // Safe number coercion: returns Number or NaN
 const toNumberSafe = (v) => {
   if (v === null || v === undefined) return NaN;
   if (typeof v === 'number') return v;
-  // If it's a Firestore-like object with toNumber (rare), try that
   if (typeof v.toNumber === 'function') {
     try { return v.toNumber(); } catch {}
   }
-  // Strings like "123.45"
   const n = Number(v);
   return Number.isFinite(n) ? n : NaN;
 };
 
-// Format money for display (returns string like "123.45" or "N/A")
 const formatMoney = (v) => {
   const n = toNumberSafe(v);
   return Number.isFinite(n) ? n.toFixed(2) : 'N/A';
 };
 
-// ----------------------------------------------------
-// CSV DOWNLOAD
-// ----------------------------------------------------
-export const downloadCSV = (trades) => {
-  if (!Array.isArray(trades) || trades.length === 0) {
-    alert('No trades to download');
-    return;
-  }
+// helper: compute total buy/sell for a trade
+const computeTotals = (trade) => {
+  const qty = toNumberSafe(trade.quantity);
+  const bp = toNumberSafe(trade.buyPrice);
+  const sp = toNumberSafe(trade.sellPrice);
 
-  const headers = [
-    'Stock Name',
-    'Trade Type',
-    'Buy Price',
-    'Sell Price',
-    'Quantity',
-    'Brokerage',
-    'Taxes',
-    'Gross P/L',
-    'Net P/L',
-    'Status',
-    'Date'
-  ];
+  const totalBuy = (Number.isFinite(qty) && Number.isFinite(bp)) ? qty * bp : NaN;
+  const totalSell = (Number.isFinite(qty) && Number.isFinite(sp)) ? qty * sp : NaN;
 
-  const rows = trades.map(trade => {
-    const { grossProfit, netProfit, status } = calculateProfitLoss(trade);
-    const date = formatDate(trade.createdAt);
-
-    return [
-      `"${trade.stockName ?? ''}"`,
-      trade.tradeType ?? '',
-      formatMoney(trade.buyPrice),
-      status === 'holding' ? 'Holding' : formatMoney(trade.sellPrice),
-      (trade.quantity !== undefined && trade.quantity !== null) ? String(trade.quantity) : 'N/A',
-      formatMoney(trade.brokerage),
-      formatMoney(trade.taxes),
-      status === 'closed' ? (Number.isFinite(toNumberSafe(grossProfit)) ? grossProfit : 'N/A') : 'N/A',
-      status === 'closed' ? (Number.isFinite(toNumberSafe(netProfit)) ? netProfit : 'N/A') : 'N/A',
-      status === 'holding' ? 'Holding' : 'Closed',
-      date
-    ].join(',');
-  });
-
-  const csvContent = [headers.join(','), ...rows].join('\n');
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `trades_${new Date().toISOString().split('T')[0]}.csv`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-};
-
-// ----------------------------------------------------
-// JSON DOWNLOAD
-// ----------------------------------------------------
-export const downloadJSON = (trades) => {
-  if (!Array.isArray(trades) || trades.length === 0) {
-    alert('No trades to download');
-    return;
-  }
-
-  const jsonTrades = trades.map(trade => {
-    const { grossProfit, netProfit, status } = calculateProfitLoss(trade);
-    return {
-      stockName: trade.stockName ?? null,
-      tradeType: trade.tradeType ?? null,
-      buyPrice: Number.isFinite(toNumberSafe(trade.buyPrice)) ? toNumberSafe(trade.buyPrice) : null,
-      sellPrice: Number.isFinite(toNumberSafe(trade.sellPrice)) ? toNumberSafe(trade.sellPrice) : null,
-      quantity: trade.quantity ?? null,
-      brokerage: Number.isFinite(toNumberSafe(trade.brokerage)) ? toNumberSafe(trade.brokerage) : null,
-      taxes: Number.isFinite(toNumberSafe(trade.taxes)) ? toNumberSafe(trade.taxes) : null,
-      grossProfit: status === 'closed' && Number.isFinite(toNumberSafe(grossProfit)) ? Number(grossProfit) : null,
-      netProfit: status === 'closed' && Number.isFinite(toNumberSafe(netProfit)) ? Number(netProfit) : null,
-      status,
-      date: formatDateISO(trade.createdAt)
-    };
-  });
-
-  const blob = new Blob([JSON.stringify(jsonTrades, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-
-  link.href = url;
-  link.download = `trades_${new Date().toISOString().split('T')[0]}.json`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  return { totalBuy, totalSell };
 };
 
 // ----------------------------------------------------
 // EXCEL DOWNLOAD (HTML table → Excel)
+// Columns: Sr No., Stock, Type, Buy Date, Sell Date, Buy Price, Sell Price,
+//          Total Buy, Total Sell, Qty, Status, Gross P/L, Net P/L, Action
 // ----------------------------------------------------
 export const downloadExcel = (trades) => {
   if (!Array.isArray(trades) || trades.length === 0) {
@@ -150,49 +57,58 @@ export const downloadExcel = (trades) => {
     <head>
       <meta charset="UTF-8">
       <style>
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; font-size: 12px; }
+        th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; vertical-align: top; }
         th { background-color: #4CAF50; color: white; font-weight: bold; }
-        tr:nth-child(even) { background-color: #f2f2f2; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
       </style>
     </head>
     <body>
       <table>
         <thead>
           <tr>
-            <th>Stock Name</th>
-            <th>Trade Type</th>
+            <th>Sr No.</th>
+            <th>Stock</th>
+            <th>Type</th>
+            <th>Buy Date</th>
+            <th>Sell Date</th>
             <th>Buy Price</th>
             <th>Sell Price</th>
-            <th>Quantity</th>
-            <th>Brokerage</th>
-            <th>Taxes</th>
+            <th>Total Buy</th>
+            <th>Total Sell</th>
+            <th>Qty</th>
+            <th>Status</th>
             <th>Gross P/L</th>
             <th>Net P/L</th>
-            <th>Status</th>
-            <th>Date</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
   `;
 
-  trades.forEach(trade => {
+  trades.forEach((trade, index) => {
     const { grossProfit, netProfit, status } = calculateProfitLoss(trade);
-    const date = formatDate(trade.createdAt);
+    const { totalBuy, totalSell } = computeTotals(trade);
+
+    const buyDate = formatDate(trade.buyDate);
+    const sellDate = formatDate(trade.sellDate);
 
     tableHTML += `
       <tr>
+        <td>${index + 1}</td>
         <td>${trade.stockName ?? ''}</td>
         <td>${trade.tradeType ?? ''}</td>
+        <td>${buyDate}</td>
+        <td>${sellDate}</td>
         <td>₹${formatMoney(trade.buyPrice)}</td>
         <td>${status === 'holding' ? 'Holding' : '₹' + formatMoney(trade.sellPrice)}</td>
+        <td>${Number.isFinite(totalBuy) ? '₹' + totalBuy.toFixed(2) : 'N/A'}</td>
+        <td>${Number.isFinite(totalSell) ? '₹' + totalSell.toFixed(2) : 'N/A'}</td>
         <td>${trade.quantity ?? ''}</td>
-        <td>₹${formatMoney(trade.brokerage)}</td>
-        <td>₹${formatMoney(trade.taxes)}</td>
+        <td>${status === 'holding' ? 'Holding' : 'Closed'}</td>
         <td>${status === 'closed' ? '₹' + (Number.isFinite(toNumberSafe(grossProfit)) ? grossProfit : 'N/A') : 'N/A'}</td>
         <td>${status === 'closed' ? '₹' + (Number.isFinite(toNumberSafe(netProfit)) ? netProfit : 'N/A') : 'N/A'}</td>
-        <td>${status === 'holding' ? 'Holding' : 'Closed'}</td>
-        <td>${date}</td>
+        <td></td>
       </tr>
     `;
   });
@@ -217,7 +133,8 @@ export const downloadExcel = (trades) => {
 };
 
 // ----------------------------------------------------
-// PRINT TRADES
+// PRINT TRADES (PDF-like / print)
+// Uses same columns as above (Action left empty).
 // ----------------------------------------------------
 export const printTrades = (trades) => {
   if (!Array.isArray(trades) || trades.length === 0) {
@@ -230,60 +147,76 @@ export const printTrades = (trades) => {
     <head>
       <title>Trading Report</title>
       <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        body { font-family: Arial, sans-serif; padding: 20px; color: #222; }
+        h1 { font-size: 20px; margin-bottom: 6px; }
+        .meta { margin-bottom: 12px; color: #555; }
+        table { border-collapse: collapse; width: 100%; margin-top: 12px; font-size: 12px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
         th { background-color: #667eea; color: white; font-weight: bold; }
-        tr:nth-child(even) { background-color: #f2f2f2; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
         .profit { color: green; font-weight: bold; }
         .loss { color: red; font-weight: bold; }
-        .footer { margin-top: 30px; text-align: center; color: #666; }
+        .footer { margin-top: 20px; text-align: center; color: #666; }
       </style>
     </head>
     <body>
       <h1>📈 Trading Report</h1>
-      <p><strong>Generated on:</strong> ${new Date().toLocaleString()}</p>
-      <p><strong>Total Trades:</strong> ${trades.length}</p>
+      <div class="meta"><strong>Generated on:</strong> ${new Date().toLocaleString()} &nbsp; | &nbsp; <strong>Total Trades:</strong> ${trades.length}</div>
       <table>
         <thead>
           <tr>
-            <th>#</th>
+            <th>Sr No.</th>
             <th>Stock</th>
             <th>Type</th>
+            <th>Buy Date</th>
+            <th>Sell Date</th>
             <th>Buy Price</th>
             <th>Sell Price</th>
+            <th>Total Buy</th>
+            <th>Total Sell</th>
             <th>Qty</th>
-            <th>Net P/L</th>
             <th>Status</th>
-            <th>Date</th>
+            <th>Gross P/L</th>
+            <th>Net P/L</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
   `;
 
-  let totalProfit = 0;
+  let totalNet = 0;
 
   trades.forEach((trade, index) => {
-    const { netProfit, status } = calculateProfitLoss(trade);
-    const date = formatDate(trade.createdAt);
+    const { grossProfit, netProfit, status } = calculateProfitLoss(trade);
+    const { totalBuy, totalSell } = computeTotals(trade);
+
+    const buyDate = formatDate(trade.buyDate);
+    const sellDate = formatDate(trade.sellDate);
 
     if (status === 'closed' && Number.isFinite(toNumberSafe(netProfit))) {
-      totalProfit += parseFloat(netProfit);
+      totalNet += parseFloat(netProfit);
     }
+
+    const netClass = status === 'closed' && parseFloat(netProfit) >= 0 ? 'profit' : 'loss';
+    const grossText = status === 'closed' ? ('₹' + (Number.isFinite(toNumberSafe(grossProfit)) ? grossProfit : 'N/A')) : 'N/A';
+    const netText = status === 'closed' ? ('₹' + (Number.isFinite(toNumberSafe(netProfit)) ? netProfit : 'N/A')) : 'N/A';
 
     printContent += `
       <tr>
         <td>${index + 1}</td>
         <td><strong>${trade.stockName ?? ''}</strong></td>
         <td>${trade.tradeType ?? ''}</td>
+        <td>${buyDate}</td>
+        <td>${sellDate}</td>
         <td>₹${formatMoney(trade.buyPrice)}</td>
         <td>${status === 'holding' ? 'Holding' : '₹' + formatMoney(trade.sellPrice)}</td>
+        <td>${Number.isFinite(totalBuy) ? '₹' + totalBuy.toFixed(2) : 'N/A'}</td>
+        <td>${Number.isFinite(totalSell) ? '₹' + totalSell.toFixed(2) : 'N/A'}</td>
         <td>${trade.quantity ?? ''}</td>
-        <td class="${status === 'closed' && parseFloat(netProfit) >= 0 ? 'profit' : 'loss'}">
-          ${status === 'closed' ? '₹' + (Number.isFinite(toNumberSafe(netProfit)) ? netProfit : 'N/A') : 'N/A'}
-        </td>
         <td>${status === 'holding' ? 'Holding' : 'Closed'}</td>
-        <td>${date}</td>
+        <td class="${netClass}">${grossText}</td>
+        <td class="${netClass}">${netText}</td>
+        <td></td>
       </tr>
     `;
   });
@@ -292,13 +225,12 @@ export const printTrades = (trades) => {
         </tbody>
         <tfoot>
           <tr>
-            <td colspan="6" style="text-align: right;"><strong>Total Net P/L:</strong></td>
-            <td colspan="3" class="${totalProfit >= 0 ? 'profit' : 'loss'}">
-              <strong>₹${totalProfit.toFixed(2)}</strong>
-            </td>
+            <td colspan="11" style="text-align: right;"><strong>Total Net P/L:</strong></td>
+            <td colspan="3" class="${totalNet >= 0 ? 'profit' : 'loss'}"><strong>₹${totalNet.toFixed(2)}</strong></td>
           </tr>
         </tfoot>
       </table>
+
       <div class="footer">
         <p>Trading Tracker Report | Generated automatically</p>
       </div>

@@ -4,12 +4,10 @@ import TradeTable from '../components/TradeTable';
 import { Container, Button, ButtonGroup } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-  faFileCsv, 
-  faFileExcel, 
-  faFileCode, 
+  faFileExcel,
   faPrint 
 } from '@fortawesome/free-solid-svg-icons';
-import { downloadCSV, downloadExcel, downloadJSON, printTrades } from '../utils/downloadUtils';
+import { downloadExcel, printTrades } from '../utils/downloadUtils';
 
 const AllTradesPage = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
   return (
@@ -19,14 +17,6 @@ const AllTradesPage = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
         
         {trades && trades.length > 0 && (
           <ButtonGroup className="download-buttons">
-            <Button 
-              variant="success" 
-              size="sm"
-              onClick={() => downloadCSV(trades)}
-              title="Download as CSV"
-            >
-              <FontAwesomeIcon icon={faFileCsv} /> CSV
-            </Button>
             
             <Button 
               variant="primary" 
@@ -35,15 +25,6 @@ const AllTradesPage = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
               title="Download as Excel"
             >
               <FontAwesomeIcon icon={faFileExcel} /> Excel
-            </Button>
-            
-            <Button 
-              variant="info" 
-              size="sm"
-              onClick={() => downloadJSON(trades)}
-              title="Download as JSON"
-            >
-              <FontAwesomeIcon icon={faFileCode} /> JSON
             </Button>
             
             <Button 
