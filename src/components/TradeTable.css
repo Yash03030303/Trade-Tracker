@@ -1,0 +1,201 @@
+/* src/components/TradeTable.css */
+
+/* Trade Table Card */
+.trade-table-card {
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Scrollable Table Container */
+.table-scroll-container {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 600px;
+  position: relative;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  background: white;
+}
+
+/* Custom Scrollbar for Modern Browsers */
+.table-scroll-container::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.table-scroll-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+  border: 2px solid #f1f1f1;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.table-scroll-container::-webkit-scrollbar-corner {
+  background: #f1f1f1;
+}
+
+/* Firefox Scrollbar */
+.table-scroll-container {
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+
+/* Trade Table */
+.trade-table {
+  width: 100%;
+  min-width: 1400px;
+  margin-bottom: 0 !important;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+/* Sticky Table Header */
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #f8f9fa !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sticky-header th {
+  background-color: #f8f9fa !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  padding: 12px 8px;
+  border-bottom: 2px solid #dee2e6 !important;
+}
+
+/* Sticky Table Footer */
+.sticky-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background-color: #f8f9fa !important;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sticky-footer td {
+  background-color: #f8f9fa !important;
+  font-weight: 600;
+  padding: 12px 8px;
+  border-top: 2px solid #dee2e6 !important;
+}
+
+/* Table Body */
+.trade-table tbody tr {
+  transition: background-color 0.2s;
+}
+
+.trade-table tbody tr:hover {
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+.trade-table tbody td {
+  padding: 10px 8px;
+  vertical-align: middle;
+}
+
+/* Text Utilities */
+.text-nowrap {
+  white-space: nowrap;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+  .table-scroll-container {
+    max-height: 500px;
+    border-radius: 5px;
+  }
+
+  .trade-table {
+    min-width: 1200px;
+    font-size: 0.75rem;
+  }
+
+  .sticky-header th {
+    font-size: 0.7rem;
+    padding: 10px 6px;
+  }
+
+  .trade-table tbody td {
+    padding: 8px 6px;
+  }
+
+  .btn-sm {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+  }
+
+  .badge {
+    font-size: 0.65rem;
+    padding: 4px 8px;
+  }
+}
+
+@media (max-width: 576px) {
+  .table-scroll-container {
+    max-height: 400px;
+  }
+
+  .trade-table {
+    min-width: 1000px;
+    font-size: 0.7rem;
+  }
+
+  .sticky-header th {
+    font-size: 0.65rem;
+    padding: 8px 4px;
+  }
+
+  .trade-table tbody td {
+    padding: 6px 4px;
+  }
+}
+
+/* Tablet Adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .table-scroll-container {
+    max-height: 550px;
+  }
+
+  .trade-table {
+    min-width: 1300px;
+  }
+}
+
+/* Large Screens */
+@media (min-width: 1400px) {
+  .table-scroll-container {
+    max-height: 700px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .table-scroll-container {
+    overflow: visible;
+    max-height: none;
+    border: none;
+  }
+
+  .sticky-header,
+  .sticky-footer {
+    position: relative;
+  }
+
+  .trade-table {
+    min-width: auto;
+  }
+}

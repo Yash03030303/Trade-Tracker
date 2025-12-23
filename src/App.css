@@ -62,11 +62,6 @@ body {
   background-color: rgba(0, 123, 255, 0.05);
 }
 
-.table-responsive {
-  border-radius: 8px;
-  overflow: hidden;
-}
-
 /* Button Styles */
 .btn-primary {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -175,31 +170,130 @@ body {
   gap: 8px;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .table {
-    font-size: 0.8rem;
+/* Tablet Responsive */
+@media (max-width: 1024px) {
+  .page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
   }
-  
+
+  .card-header {
+    padding: 12px 15px;
+  }
+
+  .btn {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 1.4rem;
+    margin-bottom: 16px;
+  }
+
+  .card {
+    border-radius: 8px;
+    margin-bottom: 15px;
+  }
+
+  .card-header {
+    padding: 10px 12px;
+  }
+
   .card-header h5 {
     font-size: 1rem;
+    margin-bottom: 0;
+  }
+
+  .card-body {
+    padding: 15px !important;
   }
   
   .btn {
-    font-size: 0.9rem;
-    padding: 8px 16px;
+    font-size: 0.85rem;
+    padding: 8px 12px;
   }
-  
-  .page-title {
-    font-size: 1.4rem;
+
+  .btn-sm {
+    font-size: 0.75rem;
+    padding: 6px 10px;
   }
-  
+
+  .badge {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+  }
+
+  .alert-container {
+    top: 70px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+
   .download-buttons {
-    flex-direction: column;
+    gap: 8px;
   }
-  
+
+  .form-control,
+  .form-select {
+    font-size: 0.9rem;
+  }
+
+  .form-label {
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 576px) {
+  .page-title {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+  }
+
+  .card {
+    border-radius: 6px;
+  }
+
+  .card-header {
+    padding: 8px 10px;
+  }
+
+  .card-header h5 {
+    font-size: 0.95rem;
+  }
+
+  .card-body {
+    padding: 12px !important;
+  }
+
+  .btn {
+    font-size: 0.8rem;
+    padding: 6px 10px;
+  }
+
+  .btn-sm {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+  }
+
+  .badge {
+    font-size: 0.65rem;
+    padding: 3px 6px;
+  }
+
   .download-buttons .btn {
     width: 100%;
+    justify-content: center;
+  }
+
+  .alert {
+    font-size: 0.85rem;
   }
 }
 
@@ -220,6 +314,7 @@ body {
 /* Scrollbar Styling */
 ::-webkit-scrollbar {
   width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -233,4 +328,25 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+/* Print Styles */
+@media print {
+  .sidebar,
+  .sidebar-toggle,
+  .download-buttons,
+  .alert-container,
+  .btn {
+    display: none !important;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+    padding: 0 !important;
+  }
+
+  .card {
+    box-shadow: none;
+    page-break-inside: avoid;
+  }
 }

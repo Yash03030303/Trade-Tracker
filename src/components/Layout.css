@@ -8,24 +8,68 @@
 
 .main-content {
   flex: 1;
-  margin-left: 260px; /* default - keep in sync with --sidebar-width */
+  margin-left: 260px;
   padding: 30px;
-  transition: margin-left 0.28s ease;
+  transition: margin-left 0.3s ease;
   overflow-y: auto;
+  overflow-x: hidden;
   min-height: 100vh;
   background: #f5f6fa;
+  width: calc(100% - 260px);
 }
 
-/* These sibling selectors require Sidebar to appear BEFORE the main content in DOM,
-   which is the case in your Layout component. */
+/* Adjust content area when sidebar is visible */
+.sidebar.open ~ .main-content {
+  margin-left: 260px;
+}
+
+/* When sidebar is closed */
 .sidebar.closed ~ .main-content {
   margin-left: 0;
+  width: 100%;
 }
 
-/* On smaller screens keep content full width and allow overlay */
-@media (max-width: 900px) {
+/* Tablet Devices */
+@media (max-width: 1024px) {
   .main-content {
     margin-left: 0;
-    padding: 80px 16px 30px;
+    padding: 20px 15px;
+    width: 100%;
+  }
+  
+  .sidebar.open ~ .main-content {
+    margin-left: 0;
+  }
+}
+
+/* Mobile Devices */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding: 80px 10px 30px;
+    width: 100%;
+  }
+  
+  .sidebar.open ~ .main-content {
+    margin-left: 0;
+  }
+
+  /* Add overlay when sidebar is open on mobile */
+  .sidebar.open ~ .main-content::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+}
+
+/* Small Mobile Devices */
+@media (max-width: 576px) {
+  .main-content {
+    padding: 70px 5px 20px;
   }
 }
