@@ -52,7 +52,7 @@
 /* Trade Table */
 .trade-table {
   width: 100%;
-  min-width: 1400px;
+  min-width: 1800px;
   margin-bottom: 0 !important;
   font-size: 0.85rem;
   white-space: nowrap;
@@ -107,6 +107,45 @@
   vertical-align: middle;
 }
 
+/* Editing Row Highlight */
+.editing-row {
+  background-color: rgba(255, 193, 7, 0.1) !important;
+  border-left: 3px solid #ffc107 !important;
+}
+
+.editing-row:hover {
+  background-color: rgba(255, 193, 7, 0.15) !important;
+}
+
+/* Edit Mode Form Controls */
+.editing-row .form-control,
+.editing-row .form-select {
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  height: auto;
+  border: 1px solid #667eea;
+  background-color: white;
+}
+
+.editing-row .form-control:focus,
+.editing-row .form-select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* Button Groups in Actions Column */
+.btn-group-vertical {
+  width: 100%;
+}
+
+.btn-group-vertical .btn {
+  border-radius: 4px !important;
+}
+
+.btn-group-vertical .btn:first-child {
+  margin-bottom: 4px;
+}
+
 /* Text Utilities */
 .text-nowrap {
   white-space: nowrap;
@@ -120,7 +159,7 @@
   }
 
   .trade-table {
-    min-width: 1200px;
+    min-width: 1600px;
     font-size: 0.75rem;
   }
 
@@ -142,6 +181,12 @@
     font-size: 0.65rem;
     padding: 4px 8px;
   }
+
+  .editing-row .form-control,
+  .editing-row .form-select {
+    font-size: 0.75rem;
+    padding: 3px 6px;
+  }
 }
 
 @media (max-width: 576px) {
@@ -150,7 +195,7 @@
   }
 
   .trade-table {
-    min-width: 1000px;
+    min-width: 1400px;
     font-size: 0.7rem;
   }
 
@@ -162,6 +207,12 @@
   .trade-table tbody td {
     padding: 6px 4px;
   }
+
+  .editing-row .form-control,
+  .editing-row .form-select {
+    font-size: 0.7rem;
+    padding: 2px 4px;
+  }
 }
 
 /* Tablet Adjustments */
@@ -171,7 +222,7 @@
   }
 
   .trade-table {
-    min-width: 1300px;
+    min-width: 1700px;
   }
 }
 
@@ -197,5 +248,10 @@
 
   .trade-table {
     min-width: auto;
+  }
+
+  .editing-row {
+    background-color: white !important;
+    border-left: none !important;
   }
 }

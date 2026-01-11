@@ -59,20 +59,47 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
   const handleEditClick = (trade) => {
     setEditingId(trade.id);
     setEditFormData({
+      stockName: trade.stockName || '',
+      tradeType: trade.tradeType || 'intraday',
+      buyPrice: trade.buyPrice || '',
       sellPrice: trade.sellPrice || '',
+      quantity: trade.quantity || '',
       brokerage: trade.brokerage || 0,
       taxes: trade.taxes || 0
     });
+  };
+
+  // Handle form field change
+  const handleEditChange = (field, value) => {
+    setEditFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   // Handle edit save
   const handleEditSave = async (tradeId) => {
     try {
       const updates = {
+        stockName: editFormData.stockName.toUpperCase(),
+        tradeType: editFormData.tradeType,
+        buyPrice: parseFloat(editFormData.buyPrice) || 0,
         sellPrice: parseFloat(editFormData.sellPrice) || 0,
+        quantity: parseInt(editFormData.quantity) || 0,
         brokerage: parseFloat(editFormData.brokerage) || 0,
         taxes: parseFloat(editFormData.taxes) || 0
       };
+      
+      // Validate
+      if (!updates.stockName || !updates.buyPrice || !updates.quantity) {
+        alert('Stock name, buy price, and quantity are required');
+        return;
+      }
+
+      if (updates.tradeType === 'intraday' && !updates.sellPrice) {
+        alert('Sell price is required for intraday trades');
+        return;
+      }
       
       await onUpdateTrade(tradeId, updates);
       setEditingId(null);
@@ -141,6 +168,8 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
                 <th className="text-end">Total Buy</th>
                 <th className="text-end">Total Sell</th>
                 <th className="text-center">Qty</th>
+                <th className="text-center">Brokerage</th>
+                <th className="text-center">Taxes</th>
                 <th className="text-center">Status</th>
                 <th className="text-end">Gross P/L</th>
                 <th className="text-end">Net P/L</th>
@@ -150,31 +179,88 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
             <tbody>
               {filteredTrades.map((trade, index) => {
                 const isEditing = editingId === trade.id;
-                const { grossProfit, netProfit, status } = calculateProfitLoss(
-                  isEditing ? { ...trade, ...editFormData } : trade
-                );
+                
+                // Use edited values if in edit mode, otherwise use original
+                const currentTrade = isEditing ? {
+                  ...trade,
+                  stockName: editFormData.stockName,
+                  tradeType: editFormData.tradeType,
+                  buyPrice: parseFloat(editFormData.buyPrice) || 0,
+                  sellPrice: parseFloat(editFormData.sellPrice) || 0,
+                  quantity: parseInt(editFormData.quantity) || 0,
+                  brokerage: parseFloat(editFormData.brokerage) || 0,
+                  taxes: parseFloat(editFormData.taxes) || 0
+                } : trade;
+
+                const { grossProfit, netProfit, status } = calculateProfitLoss(currentTrade);
                 const isProfit = status === 'closed' && parseFloat(netProfit) >= 0;
                 
                 const buyDate = formatDate(trade.createdAt);
                 const sellDate = status === 'holding' ? 'Holding' : formatDate(trade.createdAt);
                 
-                const totalBuy = (trade.buyPrice * trade.quantity).toFixed(2);
+                const totalBuy = (currentTrade.buyPrice * currentTrade.quantity).toFixed(2);
                 const totalSell = status === 'holding' 
                   ? 'Holding' 
-                  : ((isEditing ? parseFloat(editFormData.sellPrice) : trade.sellPrice) * trade.quantity).toFixed(2);
+                  : (currentTrade.sellPrice * currentTrade.quantity).toFixed(2);
                 
                 return (
-                  <tr key={trade.id}>
+                  <tr key={trade.id} className={isEditing ? 'editing-row' : ''}>
                     <td className="text-center">{index + 1}</td>
-                    <td className="text-nowrap"><strong>{trade.stockName}</strong></td>
-                    <td className="text-center">
-                      <Badge bg={trade.tradeType === 'intraday' ? 'warning' : 'info'} className="text-nowrap">
-                        {trade.tradeType}
-                      </Badge>
+                    
+                    {/* Stock Name */}
+                    <td className="text-nowrap">
+                      {isEditing ? (
+                        <Form.Control
+                          type="text"
+                          size="sm"
+                          value={editFormData.stockName}
+                          onChange={(e) => handleEditChange('stockName', e.target.value)}
+                          style={{ minWidth: '120px' }}
+                        />
+                      ) : (
+                        <strong>{trade.stockName}</strong>
+                      )}
                     </td>
+                    
+                    {/* Trade Type */}
+                    <td className="text-center">
+                      {isEditing ? (
+                        <Form.Select
+                          size="sm"
+                          value={editFormData.tradeType}
+                          onChange={(e) => handleEditChange('tradeType', e.target.value)}
+                          style={{ minWidth: '100px' }}
+                        >
+                          <option value="intraday">Intraday</option>
+                          <option value="delivery">Delivery</option>
+                        </Form.Select>
+                      ) : (
+                        <Badge bg={trade.tradeType === 'intraday' ? 'warning' : 'info'} className="text-nowrap">
+                          {trade.tradeType}
+                        </Badge>
+                      )}
+                    </td>
+                    
                     <td className="text-center text-nowrap">{buyDate}</td>
                     <td className="text-center text-nowrap">{sellDate}</td>
-                    <td className="text-end text-nowrap">₹{trade.buyPrice.toFixed(2)}</td>
+                    
+                    {/* Buy Price */}
+                    <td className="text-end text-nowrap">
+                      {isEditing ? (
+                        <Form.Control
+                          type="number"
+                          step="0.01"
+                          size="sm"
+                          value={editFormData.buyPrice}
+                          onChange={(e) => handleEditChange('buyPrice', e.target.value)}
+                          style={{ minWidth: '100px' }}
+                        />
+                      ) : (
+                        `₹${trade.buyPrice.toFixed(2)}`
+                      )}
+                    </td>
+                    
+                    {/* Sell Price */}
                     <td className="text-end text-nowrap">
                       {isEditing ? (
                         <Form.Control
@@ -182,8 +268,9 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
                           step="0.01"
                           size="sm"
                           value={editFormData.sellPrice}
-                          onChange={(e) => setEditFormData({...editFormData, sellPrice: e.target.value})}
-                          style={{ width: '100px' }}
+                          onChange={(e) => handleEditChange('sellPrice', e.target.value)}
+                          style={{ minWidth: '100px' }}
+                          placeholder={editFormData.tradeType === 'delivery' ? 'Optional' : 'Required'}
                         />
                       ) : (
                         status === 'holding' ? (
@@ -193,7 +280,11 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
                         )
                       )}
                     </td>
+                    
+                    {/* Total Buy */}
                     <td className="text-end text-nowrap">₹{totalBuy}</td>
+                    
+                    {/* Total Sell */}
                     <td className="text-end text-nowrap">
                       {totalSell === 'Holding' ? (
                         <Badge bg="secondary">Holding</Badge>
@@ -201,7 +292,55 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
                         `₹${totalSell}`
                       )}
                     </td>
-                    <td className="text-center">{trade.quantity}</td>
+                    
+                    {/* Quantity */}
+                    <td className="text-center">
+                      {isEditing ? (
+                        <Form.Control
+                          type="number"
+                          size="sm"
+                          value={editFormData.quantity}
+                          onChange={(e) => handleEditChange('quantity', e.target.value)}
+                          style={{ minWidth: '80px' }}
+                        />
+                      ) : (
+                        trade.quantity
+                      )}
+                    </td>
+                    
+                    {/* Brokerage */}
+                    <td className="text-center">
+                      {isEditing ? (
+                        <Form.Control
+                          type="number"
+                          step="0.01"
+                          size="sm"
+                          value={editFormData.brokerage}
+                          onChange={(e) => handleEditChange('brokerage', e.target.value)}
+                          style={{ minWidth: '90px' }}
+                        />
+                      ) : (
+                        `₹${trade.brokerage.toFixed(2)}`
+                      )}
+                    </td>
+                    
+                    {/* Taxes */}
+                    <td className="text-center">
+                      {isEditing ? (
+                        <Form.Control
+                          type="number"
+                          step="0.01"
+                          size="sm"
+                          value={editFormData.taxes}
+                          onChange={(e) => handleEditChange('taxes', e.target.value)}
+                          style={{ minWidth: '90px' }}
+                        />
+                      ) : (
+                        `₹${trade.taxes.toFixed(2)}`
+                      )}
+                    </td>
+                    
+                    {/* Status */}
                     <td className="text-center">
                       {status === 'holding' ? (
                         <Badge bg="primary">Active</Badge>
@@ -209,6 +348,8 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
                         <Badge bg="success">Closed</Badge>
                       )}
                     </td>
+                    
+                    {/* Gross P/L */}
                     <td className="text-end text-nowrap">
                       {status === 'closed' ? (
                         <span className={parseFloat(grossProfit) >= 0 ? 'text-success' : 'text-danger'}>
@@ -218,6 +359,8 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
                         <span className="text-muted">-</span>
                       )}
                     </td>
+                    
+                    {/* Net P/L */}
                     <td className="text-end text-nowrap">
                       {status === 'closed' ? (
                         <strong className={isProfit ? 'text-success' : 'text-danger'}>
@@ -227,12 +370,15 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
                         <span className="text-muted">-</span>
                       )}
                     </td>
+                    
+                    {/* Actions */}
                     <td className="text-center">
                       {isEditing ? (
-                        <ButtonGroup size="sm">
+                        <ButtonGroup size="sm" vertical className="w-100">
                           <Button 
                             variant="success" 
                             onClick={() => handleEditSave(trade.id)}
+                            className="mb-1"
                           >
                             Save
                           </Button>
@@ -244,16 +390,14 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
                           </Button>
                         </ButtonGroup>
                       ) : (
-                        <ButtonGroup size="sm">
-                          {status === 'holding' && (
-                            <Button 
-                              variant="primary" 
-                              onClick={() => handleEditClick(trade)}
-                              className="text-nowrap"
-                            >
-                              Edit
-                            </Button>
-                          )}
+                        <ButtonGroup size="sm" vertical className="w-100">
+                          <Button 
+                            variant="primary" 
+                            onClick={() => handleEditClick(trade)}
+                            className="mb-1 text-nowrap"
+                          >
+                            Edit
+                          </Button>
                           <Button 
                             variant="danger" 
                             onClick={() => onDeleteTrade(trade.id)}
@@ -270,7 +414,7 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
             </tbody>
             <tfoot className="table-light sticky-footer">
               <tr>
-                <td colSpan="11" className="text-end"><strong>Closed Trades Totals:</strong></td>
+                <td colSpan="13" className="text-end"><strong>Closed Trades Totals:</strong></td>
                 <td className="text-end">
                   <strong className={totalStats.grossProfit >= 0 ? 'text-success' : 'text-danger'}>
                     ₹{totalStats.grossProfit.toFixed(2)}
@@ -289,7 +433,7 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
 
         {/* Info Note */}
         <div className="text-muted text-center mt-2" style={{ fontSize: '0.85rem' }}>
-          <small>Scroll horizontally to view all columns • Total trades: {filteredTrades.length}</small>
+          <small>📝 Click Edit to modify any trade • Scroll horizontally to view all columns • Total: {filteredTrades.length}</small>
         </div>
       </Card.Body>
     </Card>
