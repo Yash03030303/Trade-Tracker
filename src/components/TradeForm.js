@@ -178,8 +178,7 @@ const TradeForm = ({ onAddTrade, onSubmit, initialData = null, submitLabel }) =>
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Buy Date</Form.Label>
-                <Form.Control type="date" name="buyDate" value={formData.buyDate} onChange={handleChange} />
-                <Form.Text className="text-muted">Optional — enter buy date.</Form.Text>
+                <Form.Control type="date" name="buyDate" value={formData.buyDate} onChange={handleChange} required/>
               </Form.Group>
             </Col>
 
