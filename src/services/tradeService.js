@@ -21,16 +21,19 @@ export const addTrade = async (tradeData, userId) => {
     // copy payload so we can convert date strings to Timestamp if provided
     const payload = {
       ...tradeData,
-      userId: userId,
-      createdAt: Timestamp.now()
+      userId: userId
     };
 
     // convert date strings (YYYY-MM-DD) to Firestore Timestamps when present
     if (payload.buyDate) {
       // new Date('YYYY-MM-DD') creates a Date at local midnight — OK for storing
       payload.buyDate = Timestamp.fromDate(new Date(payload.buyDate));
+      // Use buyDate as createdAt if provided
+      payload.createdAt = payload.buyDate;
     } else {
       payload.buyDate = null;
+      // If no buyDate provided, use current timestamp
+      payload.createdAt = Timestamp.now();
     }
 
     if (payload.sellDate) {
