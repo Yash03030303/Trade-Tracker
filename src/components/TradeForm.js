@@ -2,6 +2,20 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Card, Row, Col, Alert } from 'react-bootstrap';
 
+const MISTAKE_OPTIONS = [
+  'Overtrading',
+  'Risked Too Much',
+  'Exited Too Late',
+  'Ignored Signals',
+  'Ignored Stop Loss',
+  'Greed',
+  'Revenge Trading',
+  'Exited Too Early',
+  'FOMO Entry',
+  'No Clear Plan',
+  'No Mistakes'
+];
+
 /**
  * Props:
  *  - onAddTrade (legacy) OR onSubmit (preferred) -> async function(tradeData) for adding/updating
@@ -18,7 +32,9 @@ const TradeForm = ({ onAddTrade, onSubmit, initialData = null, submitLabel }) =>
     taxes: '0',
     tradeType: 'intraday',
     buyDate: '',
-    sellDate: ''
+    sellDate: '',
+    mistakesMade: [],
+    lessonsLearned: ''
   });
 
   const [loading, setLoading] = useState(false);
@@ -48,7 +64,9 @@ const TradeForm = ({ onAddTrade, onSubmit, initialData = null, submitLabel }) =>
       taxes: initialData.taxes !== undefined ? String(initialData.taxes) : '0',
       tradeType: initialData.tradeType ?? 'intraday',
       buyDate: toInputDate(initialData.buyDate),
-      sellDate: toInputDate(initialData.sellDate)
+      sellDate: toInputDate(initialData.sellDate),
+      mistakesMade: initialData.mistakesMade ?? [],
+      lessonsLearned: initialData.lessonsLearned ?? ''
     });
   }, [initialData]);
 
@@ -64,6 +82,10 @@ const TradeForm = ({ onAddTrade, onSubmit, initialData = null, submitLabel }) =>
     // Basic validation
     if (!formData.stockName || !formData.buyPrice || !formData.quantity) {
       setError('Please fill stock name, buy price, and quantity');
+      return;
+    }
+    if (!formData.mistakesMade || formData.mistakesMade.length === 0) {
+      setError('Please select at least one option under Mistakes Made');
       return;
     }
     if (formData.tradeType === 'intraday' && !formData.sellPrice) {
@@ -82,7 +104,9 @@ const TradeForm = ({ onAddTrade, onSubmit, initialData = null, submitLabel }) =>
       taxes: parseFloat(formData.taxes || 0),
       tradeType: formData.tradeType,
       buyDate: formData.buyDate || null,
-      sellDate: formData.sellDate || null
+      sellDate: formData.sellDate || null,
+      mistakesMade: formData.mistakesMade,
+      lessonsLearned: formData.lessonsLearned.trim() || ''
     };
 
     try {
@@ -112,7 +136,9 @@ const TradeForm = ({ onAddTrade, onSubmit, initialData = null, submitLabel }) =>
         taxes: '0',
         tradeType: 'intraday',
         buyDate: '',
-        sellDate: ''
+        sellDate: '',
+        mistakesMade: [],
+        lessonsLearned: ''
       });
     }
     setLoading(false);
@@ -207,9 +233,78 @@ const TradeForm = ({ onAddTrade, onSubmit, initialData = null, submitLabel }) =>
             </Col>
           </Row>
 
-          <Button variant="primary" type="submit" disabled={loading} className="w-100">
-            {loading ? 'Saving...' : (submitLabel || (initialData ? 'Save Changes' : 'Add Trade'))}
-          </Button>
+          {/* Mistakes Made - Required */}
+          <div className="mistakes-section mb-3">
+            <Form.Label className="d-flex align-items-center gap-2">
+              <span style={{ fontSize: '1.1rem', fontWeight: 700 }}>⚠️ Mistakes Made *</span>
+            </Form.Label>
+            <div className="mistakes-grid">
+              {MISTAKE_OPTIONS.map((mistake) => {
+                const isChecked = formData.mistakesMade.includes(mistake);
+                return (
+                  <Form.Check
+                    key={mistake}
+                    type="checkbox"
+                    id={`mistake-${mistake.replace(/\s+/g, '-').toLowerCase()}`}
+                    label={mistake}
+                    checked={isChecked}
+                    onChange={() => {
+                      setFormData(prev => {
+                        let updated;
+                        if (mistake === 'No Mistakes') {
+                          // If selecting "No Mistakes", deselect all others
+                          updated = isChecked ? [] : ['No Mistakes'];
+                        } else {
+                          // If selecting any other mistake, deselect "No Mistakes"
+                          const withoutNoMistakes = prev.mistakesMade.filter(m => m !== 'No Mistakes');
+                          updated = isChecked
+                            ? withoutNoMistakes.filter(m => m !== mistake)
+                            : [...withoutNoMistakes, mistake];
+                        }
+                        return { ...prev, mistakesMade: updated };
+                      });
+                    }}
+                    className="mistake-checkbox"
+                  />
+                );
+              })}
+            </div>
+            {formData.mistakesMade.length === 0 && (
+              <Form.Text className="text-danger">Please select at least one option</Form.Text>
+            )}
+          </div>
+
+          {/* Lessons Learned - Optional */}
+          <Form.Group className="mb-3">
+            <Form.Label>
+              <span style={{ fontSize: '1.1rem', fontWeight: 700 }}>📝 Lessons Learned</span>
+              <span className="text-muted ms-2" style={{ fontSize: '0.85rem', fontWeight: 400 }}>(Optional)</span>
+            </Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              name="lessonsLearned"
+              value={formData.lessonsLearned}
+              onChange={handleChange}
+              placeholder="What did you learn from this trade?"
+              className="lessons-textarea"
+            />
+          </Form.Group>
+
+          <div className="d-flex gap-2">
+            <Button variant="secondary" type="button" onClick={() => {
+              setFormData({
+                stockName: '', buyPrice: '', sellPrice: '', quantity: '',
+                brokerage: '0', taxes: '0', tradeType: 'intraday',
+                buyDate: '', sellDate: '', mistakesMade: [], lessonsLearned: ''
+              });
+            }} className="flex-fill" style={{ fontWeight: 600 }}>
+              🔄 Reset
+            </Button>
+            <Button variant="primary" type="submit" disabled={loading} className="flex-fill">
+              {loading ? 'Saving...' : (submitLabel || (initialData ? '💾 Save Changes' : '💾 Save Trade'))}
+            </Button>
+          </div>
         </Form>
       </Card.Body>
     </Card>

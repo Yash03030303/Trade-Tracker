@@ -1,6 +1,6 @@
 // src/components/TradeTable.js
 import React, { useState } from 'react';
-import { Table, Button, Badge, Card, Form, Row, Col, ButtonGroup } from 'react-bootstrap';
+import { Table, Button, Badge, Card, Form, Row, Col, ButtonGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { calculateProfitLoss } from '../services/tradeService';
 import './TradeTable.css';
 
@@ -65,7 +65,9 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
       sellPrice: trade.sellPrice || '',
       quantity: trade.quantity || '',
       brokerage: trade.brokerage || 0,
-      taxes: trade.taxes || 0
+      taxes: trade.taxes || 0,
+      mistakesMade: trade.mistakesMade || [],
+      lessonsLearned: trade.lessonsLearned || ''
     });
   };
 
@@ -87,7 +89,9 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
         sellPrice: parseFloat(editFormData.sellPrice) || 0,
         quantity: parseInt(editFormData.quantity) || 0,
         brokerage: parseFloat(editFormData.brokerage) || 0,
-        taxes: parseFloat(editFormData.taxes) || 0
+        taxes: parseFloat(editFormData.taxes) || 0,
+        mistakesMade: editFormData.mistakesMade || [],
+        lessonsLearned: editFormData.lessonsLearned || ''
       };
       
       // Validate
@@ -179,6 +183,7 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
             <tbody>
               {filteredTrades.map((trade, index) => {
                 const isEditing = editingId === trade.id;
+                const hasMistakesOrLessons = (trade.mistakesMade?.length > 0 || trade.lessonsLearned);
                 
                 // Use edited values if in edit mode, otherwise use original
                 const currentTrade = isEditing ? {
@@ -204,7 +209,8 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
                   : (currentTrade.sellPrice * currentTrade.quantity).toFixed(2);
                 
                 return (
-                  <tr key={trade.id} className={isEditing ? 'editing-row' : ''}>
+                  <React.Fragment key={trade.id}>
+                  <tr className={isEditing ? 'editing-row' : ''}>
                     <td className="text-center">{index + 1}</td>
                     
                     {/* Stock Name */}
@@ -409,8 +415,41 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
                       )}
                     </td>
                   </tr>
-                );
-              })}
+                  {/* Mistakes & Lessons sub-row */}
+                  {(trade.mistakesMade?.length > 0 || trade.lessonsLearned) && (
+                    <tr key={`${trade.id}-details`} className="trade-details-row">
+                      <td></td>
+                      <td colSpan="15" style={{ background: '#f8f9ff', borderTop: 'none', paddingTop: '4px', paddingBottom: '8px' }}>
+                        <div className="d-flex flex-wrap align-items-start gap-3">
+                          {trade.mistakesMade?.length > 0 && (
+                            <div>
+                              <small className="text-muted" style={{ fontWeight: 600 }}>⚠️ Mistakes: </small>
+                              {trade.mistakesMade.map((m, i) => (
+                                <Badge
+                                  key={i}
+                                  bg={m === 'No Mistakes' ? 'success' : 'warning'}
+                                  text={m === 'No Mistakes' ? 'white' : 'dark'}
+                                  className="me-1"
+                                  style={{ fontSize: '0.75rem' }}
+                                >
+                                  {m}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                          {trade.lessonsLearned && (
+                            <div style={{ flex: 1 }}>
+                              <small className="text-muted" style={{ fontWeight: 600 }}>📝 Lesson: </small>
+                              <small style={{ color: '#495057' }}>{trade.lessonsLearned}</small>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              );
+            })}
             </tbody>
             <tfoot className="table-light sticky-footer">
               <tr>
