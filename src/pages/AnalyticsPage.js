@@ -1,10 +1,11 @@
 // src/pages/AnalyticsPage.js
 import React, { useState } from 'react';
-import { Card, Row, Col, Table, Container, Form } from 'react-bootstrap';
+import { Card, Row, Col, Table, Container, Form, Badge } from 'react-bootstrap';
 import { calculateProfitLoss } from '../services/tradeService';
 
 const AnalyticsPage = ({ trades }) => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+
   if (trades.length === 0) {
     return (
       <Container>
@@ -129,6 +130,53 @@ const AnalyticsPage = ({ trades }) => {
     }
   });
 
+  // ===== MISTAKES ANALYSIS =====
+  const mistakeFrequency = {};
+  let totalMistakes = 0;
+
+  trades.forEach(trade => {
+    if (trade.mistakesMade && Array.isArray(trade.mistakesMade)) {
+      trade.mistakesMade.forEach(mistake => {
+        mistakeFrequency[mistake] = (mistakeFrequency[mistake] || 0) + 1;
+        totalMistakes++;
+      });
+    }
+  });
+
+  // Sort by frequency (descending)
+  const mistakesSorted = Object.entries(mistakeFrequency)
+    .sort((a, b) => b[1] - a[1]);
+
+  // Mistakes on losing trades vs winning trades
+  let mistakesOnLoss = {};
+  let mistakesOnWin = {};
+
+  trades.forEach(trade => {
+    const { netProfit, status } = calculateProfitLoss(trade);
+    if (status !== 'closed' || !trade.mistakesMade) return;
+
+    const isWin = parseFloat(netProfit) > 0;
+    const target = isWin ? mistakesOnWin : mistakesOnLoss;
+
+    trade.mistakesMade.forEach(m => {
+      target[m] = (target[m] || 0) + 1;
+    });
+  });
+
+  // ===== LESSONS LEARNED =====
+  const lessonsData = trades
+    .filter(t => t.lessonsLearned && t.lessonsLearned.trim())
+    .map(t => ({
+      stockName: t.stockName,
+      lesson: t.lessonsLearned,
+      date: t.createdAt
+        ? (typeof t.createdAt.toDate === 'function'
+          ? t.createdAt.toDate().toLocaleDateString('en-IN')
+          : new Date(t.createdAt).toLocaleDateString('en-IN'))
+        : 'N/A',
+      netProfit: calculateProfitLoss(t).netProfit
+    }));
+
   return (
     <Container>
       <h4 className="page-title">📈 Detailed Analytics</h4>
@@ -195,6 +243,121 @@ const AnalyticsPage = ({ trades }) => {
           </Card>
         </Col>
       </Row>
+
+      {/* ===== MISTAKES ANALYSIS ===== */}
+      {mistakesSorted.length > 0 && (
+        <Row className="mb-4">
+          <Col md={12}>
+            <Card className="shadow-sm mistake-analytics-card">
+              <Card.Header style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
+                <h5 className="mb-0">⚠️ Mistakes Analysis</h5>
+              </Card.Header>
+              <Card.Body>
+                <Row>
+                  {/* Mistake Frequency Bar Chart */}
+                  <Col md={7} className="mb-3">
+                    <h6 className="mb-3" style={{ fontWeight: 700, color: '#495057' }}>
+                      Mistake Frequency
+                      <span className="text-muted ms-2" style={{ fontSize: '0.85rem', fontWeight: 400 }}>
+                        (across {trades.length} trades)
+                      </span>
+                    </h6>
+                    {mistakesSorted.map(([mistake, count]) => {
+                      const percentage = ((count / trades.length) * 100).toFixed(1);
+                      return (
+                        <div key={mistake} className="mistake-stat-item">
+                          <span className="mistake-label">{mistake}</span>
+                          <div className="mistake-bar-container flex-grow-1">
+                            <div className="mistake-bar" style={{ width: `${percentage}%` }}>
+                              <span>{count}</span>
+                            </div>
+                          </div>
+                          <span className="mistake-count-badge">{percentage}%</span>
+                        </div>
+                      );
+                    })}
+                  </Col>
+
+                  {/* Mistakes on Win vs Loss */}
+                  <Col md={5} className="mb-3">
+                    <h6 className="mb-3" style={{ fontWeight: 700, color: '#495057' }}>Win vs Loss Breakdown</h6>
+                    <Table size="sm" hover className="mb-0">
+                      <thead>
+                        <tr>
+                          <th>Mistake</th>
+                          <th className="text-center text-success">Wins</th>
+                          <th className="text-center text-danger">Losses</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {mistakesSorted.map(([mistake]) => (
+                          <tr key={mistake}>
+                            <td style={{ fontWeight: 500, fontSize: '0.88rem' }}>{mistake}</td>
+                            <td className="text-center">
+                              <Badge bg="success" pill>{mistakesOnWin[mistake] || 0}</Badge>
+                            </td>
+                            <td className="text-center">
+                              <Badge bg="danger" pill>{mistakesOnLoss[mistake] || 0}</Badge>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+
+                    {/* Top Mistake Highlight */}
+                    {mistakesSorted.length > 0 && (
+                      <div className="mt-3 p-3" style={{
+                        background: 'linear-gradient(135deg, #fff5f5 0%, #fff0f0 100%)',
+                        borderRadius: '10px',
+                        border: '1px solid #fee'
+                      }}>
+                        <small className="text-muted">🔥 Most Common Mistake</small>
+                        <h5 className="mb-0 mt-1" style={{ color: '#dc3545' }}>
+                          {mistakesSorted[0][0]}
+                          <Badge bg="danger" className="ms-2">{mistakesSorted[0][1]} times</Badge>
+                        </h5>
+                      </div>
+                    )}
+                  </Col>
+                </Row>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      )}
+
+      {/* ===== LESSONS LEARNED ===== */}
+      {lessonsData.length > 0 && (
+        <Row className="mb-4">
+          <Col md={12}>
+            <Card className="shadow-sm">
+              <Card.Header style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', color: 'white' }}>
+                <h5 className="mb-0">📝 Lessons Learned ({lessonsData.length})</h5>
+              </Card.Header>
+              <Card.Body>
+                {lessonsData.map((item, idx) => (
+                  <div key={idx} className="lesson-item">
+                    <div className="d-flex align-items-center justify-content-between mb-1">
+                      <div>
+                        <span className="lesson-stock-badge">{item.stockName}</span>
+                        <span className="lesson-date">{item.date}</span>
+                      </div>
+                      {item.netProfit !== null && (
+                        <Badge bg={parseFloat(item.netProfit) >= 0 ? 'success' : 'danger'}>
+                          ₹{item.netProfit}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="mb-0" style={{ fontSize: '0.95rem', color: '#495057' }}>
+                      {item.lesson}
+                    </p>
+                  </div>
+                ))}
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      )}
 
       <Row className="mb-4">
         <Col md={12}>
