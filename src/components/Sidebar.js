@@ -3,15 +3,16 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { logoutUser } from '../services/authService';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faChartLine, 
-  faPlus, 
-  faList, 
-  faChartBar, 
+import {
+  faChartLine,
+  faPlus,
+  faList,
+  faChartBar,
   faSignOutAlt,
   faBars,
   faTimes,
-  faUser
+  faUser,
+  faRobot
 } from '@fortawesome/free-solid-svg-icons';
 import './Sidebar.css';
 
@@ -53,36 +54,44 @@ const Sidebar = ({ user }) => {
         </div>
 
         <nav className="sidebar-nav">
-          <NavLink 
-            to="/dashboard" 
+          <NavLink
+            to="/dashboard"
             className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}
           >
             <FontAwesomeIcon icon={faChartLine} className="nav-icon" />
             <span>Dashboard</span>
           </NavLink>
 
-          <NavLink 
-            to="/add-trade" 
+          <NavLink
+            to="/add-trade"
             className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}
           >
             <FontAwesomeIcon icon={faPlus} className="nav-icon" />
             <span>Add Trade</span>
           </NavLink>
 
-          <NavLink 
-            to="/all-trades" 
+          <NavLink
+            to="/all-trades"
             className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}
           >
             <FontAwesomeIcon icon={faList} className="nav-icon" />
             <span>All Trades</span>
           </NavLink>
 
-          <NavLink 
-            to="/analytics" 
+          <NavLink
+            to="/analytics"
             className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}
           >
             <FontAwesomeIcon icon={faChartBar} className="nav-icon" />
             <span>Analytics</span>
+          </NavLink>
+
+          <NavLink
+            to="/ai-analysis"
+            className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}
+          >
+            <FontAwesomeIcon icon={faRobot} className="nav-icon" />
+            <span>AI Analysis</span>
           </NavLink>
         </nav>
 
