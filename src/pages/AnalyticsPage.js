@@ -22,10 +22,10 @@ const AnalyticsPage = ({ trades }) => {
 
   // Stock-wise analysis
   const stockWiseData = {};
-  
+
   trades.forEach(trade => {
     const { netProfit, status } = calculateProfitLoss(trade);
-    
+
     if (!stockWiseData[trade.stockName]) {
       stockWiseData[trade.stockName] = {
         totalTrades: 0,
@@ -35,10 +35,10 @@ const AnalyticsPage = ({ trades }) => {
         totalQuantity: 0
       };
     }
-    
+
     stockWiseData[trade.stockName].totalTrades++;
     stockWiseData[trade.stockName].totalQuantity += trade.quantity;
-    
+
     if (status === 'closed') {
       stockWiseData[trade.stockName].closedTrades++;
       stockWiseData[trade.stockName].totalProfit += parseFloat(netProfit);
@@ -110,21 +110,21 @@ const AnalyticsPage = ({ trades }) => {
 
   // Monthly analysis
   const monthlyData = {};
-  
+
   trades.forEach(trade => {
     const { netProfit, status } = calculateProfitLoss(trade);
-    
+
     if (status === 'closed' && trade.createdAt) {
       const date = trade.createdAt.toDate();
       const monthKey = `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
-      
+
       if (!monthlyData[monthKey]) {
         monthlyData[monthKey] = {
           trades: 0,
           profit: 0
         };
       }
-      
+
       monthlyData[monthKey].trades++;
       monthlyData[monthKey].profit += parseFloat(netProfit);
     }
@@ -132,6 +132,7 @@ const AnalyticsPage = ({ trades }) => {
 
   // ===== MISTAKES ANALYSIS =====
   const mistakeFrequency = {};
+  // eslint-disable-next-line no-unused-vars
   let totalMistakes = 0;
 
   trades.forEach(trade => {

@@ -1,6 +1,6 @@
 // src/components/TradeTable.js
 import React, { useState } from 'react';
-import { Table, Button, Badge, Card, Form, Row, Col, ButtonGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Table, Button, Badge, Card, Form, Row, Col, ButtonGroup } from 'react-bootstrap';
 import { calculateProfitLoss } from '../services/tradeService';
 import './TradeTable.css';
 
@@ -93,7 +93,7 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
         mistakesMade: editFormData.mistakesMade || [],
         lessonsLearned: editFormData.lessonsLearned || ''
       };
-      
+
       // Validate
       if (!updates.stockName || !updates.buyPrice || !updates.quantity) {
         alert('Stock name, buy price, and quantity are required');
@@ -104,7 +104,7 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
         alert('Sell price is required for intraday trades');
         return;
       }
-      
+
       await onUpdateTrade(tradeId, updates);
       setEditingId(null);
       setEditFormData({});
@@ -136,7 +136,7 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
       <Card.Header className="bg-success text-white">
         <h5 className="mb-0">Trade History ({filteredTrades.length})</h5>
       </Card.Header>
-      
+
       <Card.Body className="p-3">
         {/* Filters */}
         <Row className="mb-3">
@@ -183,8 +183,8 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
             <tbody>
               {filteredTrades.map((trade, index) => {
                 const isEditing = editingId === trade.id;
-                const hasMistakesOrLessons = (trade.mistakesMade?.length > 0 || trade.lessonsLearned);
-                
+                //const hasMistakesOrLessons = (trade.mistakesMade?.length > 0 || trade.lessonsLearned);
+
                 // Use edited values if in edit mode, otherwise use original
                 const currentTrade = isEditing ? {
                   ...trade,
@@ -199,257 +199,257 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
 
                 const { grossProfit, netProfit, status } = calculateProfitLoss(currentTrade);
                 const isProfit = status === 'closed' && parseFloat(netProfit) >= 0;
-                
+
                 const buyDate = formatDate(trade.createdAt);
                 const sellDate = status === 'holding' ? 'Holding' : formatDate(trade.createdAt);
-                
+
                 const totalBuy = (currentTrade.buyPrice * currentTrade.quantity).toFixed(2);
-                const totalSell = status === 'holding' 
-                  ? 'Holding' 
+                const totalSell = status === 'holding'
+                  ? 'Holding'
                   : (currentTrade.sellPrice * currentTrade.quantity).toFixed(2);
-                
+
                 return (
                   <React.Fragment key={trade.id}>
-                  <tr className={isEditing ? 'editing-row' : ''}>
-                    <td className="text-center">{index + 1}</td>
-                    
-                    {/* Stock Name */}
-                    <td className="text-nowrap">
-                      {isEditing ? (
-                        <Form.Control
-                          type="text"
-                          size="sm"
-                          value={editFormData.stockName}
-                          onChange={(e) => handleEditChange('stockName', e.target.value)}
-                          style={{ minWidth: '120px' }}
-                        />
-                      ) : (
-                        <strong>{trade.stockName}</strong>
-                      )}
-                    </td>
-                    
-                    {/* Trade Type */}
-                    <td className="text-center">
-                      {isEditing ? (
-                        <Form.Select
-                          size="sm"
-                          value={editFormData.tradeType}
-                          onChange={(e) => handleEditChange('tradeType', e.target.value)}
-                          style={{ minWidth: '100px' }}
-                        >
-                          <option value="intraday">Intraday</option>
-                          <option value="delivery">Delivery</option>
-                        </Form.Select>
-                      ) : (
-                        <Badge bg={trade.tradeType === 'intraday' ? 'warning' : 'info'} className="text-nowrap">
-                          {trade.tradeType}
-                        </Badge>
-                      )}
-                    </td>
-                    
-                    <td className="text-center text-nowrap">{buyDate}</td>
-                    <td className="text-center text-nowrap">{sellDate}</td>
-                    
-                    {/* Buy Price */}
-                    <td className="text-end text-nowrap">
-                      {isEditing ? (
-                        <Form.Control
-                          type="number"
-                          step="0.01"
-                          size="sm"
-                          value={editFormData.buyPrice}
-                          onChange={(e) => handleEditChange('buyPrice', e.target.value)}
-                          style={{ minWidth: '100px' }}
-                        />
-                      ) : (
-                        `₹${trade.buyPrice.toFixed(2)}`
-                      )}
-                    </td>
-                    
-                    {/* Sell Price */}
-                    <td className="text-end text-nowrap">
-                      {isEditing ? (
-                        <Form.Control
-                          type="number"
-                          step="0.01"
-                          size="sm"
-                          value={editFormData.sellPrice}
-                          onChange={(e) => handleEditChange('sellPrice', e.target.value)}
-                          style={{ minWidth: '100px' }}
-                          placeholder={editFormData.tradeType === 'delivery' ? 'Optional' : 'Required'}
-                        />
-                      ) : (
-                        status === 'holding' ? (
+                    <tr className={isEditing ? 'editing-row' : ''}>
+                      <td className="text-center">{index + 1}</td>
+
+                      {/* Stock Name */}
+                      <td className="text-nowrap">
+                        {isEditing ? (
+                          <Form.Control
+                            type="text"
+                            size="sm"
+                            value={editFormData.stockName}
+                            onChange={(e) => handleEditChange('stockName', e.target.value)}
+                            style={{ minWidth: '120px' }}
+                          />
+                        ) : (
+                          <strong>{trade.stockName}</strong>
+                        )}
+                      </td>
+
+                      {/* Trade Type */}
+                      <td className="text-center">
+                        {isEditing ? (
+                          <Form.Select
+                            size="sm"
+                            value={editFormData.tradeType}
+                            onChange={(e) => handleEditChange('tradeType', e.target.value)}
+                            style={{ minWidth: '100px' }}
+                          >
+                            <option value="intraday">Intraday</option>
+                            <option value="delivery">Delivery</option>
+                          </Form.Select>
+                        ) : (
+                          <Badge bg={trade.tradeType === 'intraday' ? 'warning' : 'info'} className="text-nowrap">
+                            {trade.tradeType}
+                          </Badge>
+                        )}
+                      </td>
+
+                      <td className="text-center text-nowrap">{buyDate}</td>
+                      <td className="text-center text-nowrap">{sellDate}</td>
+
+                      {/* Buy Price */}
+                      <td className="text-end text-nowrap">
+                        {isEditing ? (
+                          <Form.Control
+                            type="number"
+                            step="0.01"
+                            size="sm"
+                            value={editFormData.buyPrice}
+                            onChange={(e) => handleEditChange('buyPrice', e.target.value)}
+                            style={{ minWidth: '100px' }}
+                          />
+                        ) : (
+                          `₹${trade.buyPrice.toFixed(2)}`
+                        )}
+                      </td>
+
+                      {/* Sell Price */}
+                      <td className="text-end text-nowrap">
+                        {isEditing ? (
+                          <Form.Control
+                            type="number"
+                            step="0.01"
+                            size="sm"
+                            value={editFormData.sellPrice}
+                            onChange={(e) => handleEditChange('sellPrice', e.target.value)}
+                            style={{ minWidth: '100px' }}
+                            placeholder={editFormData.tradeType === 'delivery' ? 'Optional' : 'Required'}
+                          />
+                        ) : (
+                          status === 'holding' ? (
+                            <Badge bg="secondary">Holding</Badge>
+                          ) : (
+                            `₹${trade.sellPrice.toFixed(2)}`
+                          )
+                        )}
+                      </td>
+
+                      {/* Total Buy */}
+                      <td className="text-end text-nowrap">₹{totalBuy}</td>
+
+                      {/* Total Sell */}
+                      <td className="text-end text-nowrap">
+                        {totalSell === 'Holding' ? (
                           <Badge bg="secondary">Holding</Badge>
                         ) : (
-                          `₹${trade.sellPrice.toFixed(2)}`
-                        )
-                      )}
-                    </td>
-                    
-                    {/* Total Buy */}
-                    <td className="text-end text-nowrap">₹{totalBuy}</td>
-                    
-                    {/* Total Sell */}
-                    <td className="text-end text-nowrap">
-                      {totalSell === 'Holding' ? (
-                        <Badge bg="secondary">Holding</Badge>
-                      ) : (
-                        `₹${totalSell}`
-                      )}
-                    </td>
-                    
-                    {/* Quantity */}
-                    <td className="text-center">
-                      {isEditing ? (
-                        <Form.Control
-                          type="number"
-                          size="sm"
-                          value={editFormData.quantity}
-                          onChange={(e) => handleEditChange('quantity', e.target.value)}
-                          style={{ minWidth: '80px' }}
-                        />
-                      ) : (
-                        trade.quantity
-                      )}
-                    </td>
-                    
-                    {/* Brokerage */}
-                    <td className="text-center">
-                      {isEditing ? (
-                        <Form.Control
-                          type="number"
-                          step="0.01"
-                          size="sm"
-                          value={editFormData.brokerage}
-                          onChange={(e) => handleEditChange('brokerage', e.target.value)}
-                          style={{ minWidth: '90px' }}
-                        />
-                      ) : (
-                        `₹${trade.brokerage.toFixed(2)}`
-                      )}
-                    </td>
-                    
-                    {/* Taxes */}
-                    <td className="text-center">
-                      {isEditing ? (
-                        <Form.Control
-                          type="number"
-                          step="0.01"
-                          size="sm"
-                          value={editFormData.taxes}
-                          onChange={(e) => handleEditChange('taxes', e.target.value)}
-                          style={{ minWidth: '90px' }}
-                        />
-                      ) : (
-                        `₹${trade.taxes.toFixed(2)}`
-                      )}
-                    </td>
-                    
-                    {/* Status */}
-                    <td className="text-center">
-                      {status === 'holding' ? (
-                        <Badge bg="primary">Active</Badge>
-                      ) : (
-                        <Badge bg="success">Closed</Badge>
-                      )}
-                    </td>
-                    
-                    {/* Gross P/L */}
-                    <td className="text-end text-nowrap">
-                      {status === 'closed' ? (
-                        <span className={parseFloat(grossProfit) >= 0 ? 'text-success' : 'text-danger'}>
-                          <strong>₹{grossProfit}</strong>
-                        </span>
-                      ) : (
-                        <span className="text-muted">-</span>
-                      )}
-                    </td>
-                    
-                    {/* Net P/L */}
-                    <td className="text-end text-nowrap">
-                      {status === 'closed' ? (
-                        <strong className={isProfit ? 'text-success' : 'text-danger'}>
-                          ₹{netProfit}
-                        </strong>
-                      ) : (
-                        <span className="text-muted">-</span>
-                      )}
-                    </td>
-                    
-                    {/* Actions */}
-                    <td className="text-center">
-                      {isEditing ? (
-                        <ButtonGroup size="sm" vertical className="w-100">
-                          <Button 
-                            variant="success" 
-                            onClick={() => handleEditSave(trade.id)}
-                            className="mb-1"
-                          >
-                            Save
-                          </Button>
-                          <Button 
-                            variant="secondary" 
-                            onClick={handleEditCancel}
-                          >
-                            Cancel
-                          </Button>
-                        </ButtonGroup>
-                      ) : (
-                        <ButtonGroup size="sm" vertical className="w-100">
-                          <Button 
-                            variant="primary" 
-                            onClick={() => handleEditClick(trade)}
-                            className="mb-1 text-nowrap"
-                          >
-                            Edit
-                          </Button>
-                          <Button 
-                            variant="danger" 
-                            onClick={() => onDeleteTrade(trade.id)}
-                            className="text-nowrap"
-                          >
-                            Delete
-                          </Button>
-                        </ButtonGroup>
-                      )}
-                    </td>
-                  </tr>
-                  {/* Mistakes & Lessons sub-row */}
-                  {(trade.mistakesMade?.length > 0 || trade.lessonsLearned) && (
-                    <tr key={`${trade.id}-details`} className="trade-details-row">
-                      <td></td>
-                      <td colSpan="15" style={{ background: '#f8f9ff', borderTop: 'none', paddingTop: '4px', paddingBottom: '8px' }}>
-                        <div className="d-flex flex-wrap align-items-start gap-3">
-                          {trade.mistakesMade?.length > 0 && (
-                            <div>
-                              <small className="text-muted" style={{ fontWeight: 600 }}>⚠️ Mistakes: </small>
-                              {trade.mistakesMade.map((m, i) => (
-                                <Badge
-                                  key={i}
-                                  bg={m === 'No Mistakes' ? 'success' : 'warning'}
-                                  text={m === 'No Mistakes' ? 'white' : 'dark'}
-                                  className="me-1"
-                                  style={{ fontSize: '0.75rem' }}
-                                >
-                                  {m}
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
-                          {trade.lessonsLearned && (
-                            <div style={{ flex: 1 }}>
-                              <small className="text-muted" style={{ fontWeight: 600 }}>📝 Lesson: </small>
-                              <small style={{ color: '#495057' }}>{trade.lessonsLearned}</small>
-                            </div>
-                          )}
-                        </div>
+                          `₹${totalSell}`
+                        )}
+                      </td>
+
+                      {/* Quantity */}
+                      <td className="text-center">
+                        {isEditing ? (
+                          <Form.Control
+                            type="number"
+                            size="sm"
+                            value={editFormData.quantity}
+                            onChange={(e) => handleEditChange('quantity', e.target.value)}
+                            style={{ minWidth: '80px' }}
+                          />
+                        ) : (
+                          trade.quantity
+                        )}
+                      </td>
+
+                      {/* Brokerage */}
+                      <td className="text-center">
+                        {isEditing ? (
+                          <Form.Control
+                            type="number"
+                            step="0.01"
+                            size="sm"
+                            value={editFormData.brokerage}
+                            onChange={(e) => handleEditChange('brokerage', e.target.value)}
+                            style={{ minWidth: '90px' }}
+                          />
+                        ) : (
+                          `₹${trade.brokerage.toFixed(2)}`
+                        )}
+                      </td>
+
+                      {/* Taxes */}
+                      <td className="text-center">
+                        {isEditing ? (
+                          <Form.Control
+                            type="number"
+                            step="0.01"
+                            size="sm"
+                            value={editFormData.taxes}
+                            onChange={(e) => handleEditChange('taxes', e.target.value)}
+                            style={{ minWidth: '90px' }}
+                          />
+                        ) : (
+                          `₹${trade.taxes.toFixed(2)}`
+                        )}
+                      </td>
+
+                      {/* Status */}
+                      <td className="text-center">
+                        {status === 'holding' ? (
+                          <Badge bg="primary">Active</Badge>
+                        ) : (
+                          <Badge bg="success">Closed</Badge>
+                        )}
+                      </td>
+
+                      {/* Gross P/L */}
+                      <td className="text-end text-nowrap">
+                        {status === 'closed' ? (
+                          <span className={parseFloat(grossProfit) >= 0 ? 'text-success' : 'text-danger'}>
+                            <strong>₹{grossProfit}</strong>
+                          </span>
+                        ) : (
+                          <span className="text-muted">-</span>
+                        )}
+                      </td>
+
+                      {/* Net P/L */}
+                      <td className="text-end text-nowrap">
+                        {status === 'closed' ? (
+                          <strong className={isProfit ? 'text-success' : 'text-danger'}>
+                            ₹{netProfit}
+                          </strong>
+                        ) : (
+                          <span className="text-muted">-</span>
+                        )}
+                      </td>
+
+                      {/* Actions */}
+                      <td className="text-center">
+                        {isEditing ? (
+                          <ButtonGroup size="sm" vertical className="w-100">
+                            <Button
+                              variant="success"
+                              onClick={() => handleEditSave(trade.id)}
+                              className="mb-1"
+                            >
+                              Save
+                            </Button>
+                            <Button
+                              variant="secondary"
+                              onClick={handleEditCancel}
+                            >
+                              Cancel
+                            </Button>
+                          </ButtonGroup>
+                        ) : (
+                          <ButtonGroup size="sm" vertical className="w-100">
+                            <Button
+                              variant="primary"
+                              onClick={() => handleEditClick(trade)}
+                              className="mb-1 text-nowrap"
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="danger"
+                              onClick={() => onDeleteTrade(trade.id)}
+                              className="text-nowrap"
+                            >
+                              Delete
+                            </Button>
+                          </ButtonGroup>
+                        )}
                       </td>
                     </tr>
-                  )}
-                </React.Fragment>
-              );
-            })}
+                    {/* Mistakes & Lessons sub-row */}
+                    {(trade.mistakesMade?.length > 0 || trade.lessonsLearned) && (
+                      <tr key={`${trade.id}-details`} className="trade-details-row">
+                        <td></td>
+                        <td colSpan="15" style={{ background: '#f8f9ff', borderTop: 'none', paddingTop: '4px', paddingBottom: '8px' }}>
+                          <div className="d-flex flex-wrap align-items-start gap-3">
+                            {trade.mistakesMade?.length > 0 && (
+                              <div>
+                                <small className="text-muted" style={{ fontWeight: 600 }}>⚠️ Mistakes: </small>
+                                {trade.mistakesMade.map((m, i) => (
+                                  <Badge
+                                    key={i}
+                                    bg={m === 'No Mistakes' ? 'success' : 'warning'}
+                                    text={m === 'No Mistakes' ? 'white' : 'dark'}
+                                    className="me-1"
+                                    style={{ fontSize: '0.75rem' }}
+                                  >
+                                    {m}
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
+                            {trade.lessonsLearned && (
+                              <div style={{ flex: 1 }}>
+                                <small className="text-muted" style={{ fontWeight: 600 }}>📝 Lesson: </small>
+                                <small style={{ color: '#495057' }}>{trade.lessonsLearned}</small>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </tbody>
             <tfoot className="table-light sticky-footer">
               <tr>

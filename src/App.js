@@ -16,6 +16,7 @@ import DashboardPage from './pages/DashboardPage';
 import AddTradePage from './pages/AddTradePage';
 import AllTradesPage from './pages/AllTradesPage';
 import AnalyticsPage from './pages/AnalyticsPage';
+import AIAnalysisPage from './pages/AIAnalysisPage';
 
 // Styles
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -34,7 +35,7 @@ function App() {
     const unsubscribe = onAuthStateChange((currentUser) => {
       setUser(currentUser);
       setAuthChecking(false);
-      
+
       if (currentUser) {
         fetchTrades(currentUser.uid);
       } else {
@@ -90,8 +91,8 @@ function App() {
   const handleUpdateTrade = async (tradeId, updates) => {
     try {
       await updateTrade(tradeId, updates);
-      setTrades(prevTrades => 
-        prevTrades.map(trade => 
+      setTrades(prevTrades =>
+        prevTrades.map(trade =>
           trade.id === tradeId ? { ...trade, ...updates } : trade
         )
       );
@@ -129,7 +130,7 @@ function App() {
           {/* Public Routes */}
           <Route path="/login" element={!user ? <Login /> : <Navigate to="/dashboard" />} />
           <Route path="/register" element={!user ? <Register /> : <Navigate to="/dashboard" />} />
-          
+
           {/* Protected Routes */}
           <Route
             path="/*"
@@ -144,7 +145,7 @@ function App() {
                           {error}
                         </Alert>
                       )}
-                      
+
                       {success && (
                         <Alert variant="success" dismissible onClose={() => setSuccess('')}>
                           {success}
@@ -156,18 +157,19 @@ function App() {
                   <Routes>
                     <Route path="/dashboard" element={<DashboardPage trades={trades} loading={loading} />} />
                     <Route path="/add-trade" element={<AddTradePage onAddTrade={handleAddTrade} />} />
-                    <Route 
-                      path="/all-trades" 
+                    <Route
+                      path="/all-trades"
                       element={
-                        <AllTradesPage 
-                          trades={trades} 
+                        <AllTradesPage
+                          trades={trades}
                           onDeleteTrade={handleDeleteTrade}
                           onUpdateTrade={handleUpdateTrade}
                           loading={loading}
                         />
-                      } 
+                      }
                     />
                     <Route path="/analytics" element={<AnalyticsPage trades={trades} />} />
+                    <Route path="/ai-analysis" element={<AIAnalysisPage />} />
                     <Route path="/" element={<Navigate to="/dashboard" />} />
                   </Routes>
                 </Layout>
