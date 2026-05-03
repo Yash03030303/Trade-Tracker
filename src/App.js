@@ -17,6 +17,7 @@ import AddTradePage from './pages/AddTradePage';
 import AllTradesPage from './pages/AllTradesPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import AIAnalysisPage from './pages/AIAnalysisPage';
+import SwingTradePage from './pages/SwingTradePage';
 
 // Styles
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -168,6 +169,7 @@ function App() {
                         />
                       }
                     />
+                    <Route path="/swing-trades" element={<SwingTradePage user={user} />} />
                     <Route path="/analytics" element={<AnalyticsPage trades={trades} />} />
                     <Route path="/ai-analysis" element={<AIAnalysisPage />} />
                     <Route path="/" element={<Navigate to="/dashboard" />} />
