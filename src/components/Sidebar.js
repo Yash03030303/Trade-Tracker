@@ -12,7 +12,8 @@ import {
   faBars,
   faTimes,
   faUser,
-  faRobot
+  faRobot,
+  faArrowTrendUp
 } from '@fortawesome/free-solid-svg-icons';
 import './Sidebar.css';
 
@@ -76,6 +77,14 @@ const Sidebar = ({ user }) => {
           >
             <FontAwesomeIcon icon={faList} className="nav-icon" />
             <span>All Trades</span>
+          </NavLink>
+
+          <NavLink
+            to="/swing-trades"
+            className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}
+          >
+            <FontAwesomeIcon icon={faArrowTrendUp} className="nav-icon" />
+            <span>Swing Trades</span>
           </NavLink>
 
           <NavLink

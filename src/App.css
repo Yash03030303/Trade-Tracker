@@ -526,3 +526,281 @@ body {
     page-break-inside: avoid;
   }
 }
+
+/* ===================================================================
+   SWING TRADE STYLES
+   =================================================================== */
+
+/* Swing Tabs */
+.swing-tabs .nav-link {
+  font-weight: 600;
+  color: #495057;
+  border: none;
+  padding: 12px 20px;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.swing-tabs .nav-link:hover {
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.06);
+}
+
+.swing-tabs .nav-link.active {
+  color: #667eea;
+  border-bottom: 3px solid #667eea;
+  background: transparent;
+}
+
+.swing-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #667eea;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.swing-tab-count-active {
+  background: #28a745;
+  animation: pulse-badge 2s infinite;
+}
+
+@keyframes pulse-badge {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+/* Swing Plan Card */
+.swing-plan-card {
+  border-radius: 14px;
+  border: 1px solid rgba(102, 126, 234, 0.15);
+}
+
+.swing-zone-section {
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+/* R:R Live Badges */
+.swing-rr-live {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.8);
+  border-radius: 10px;
+  border: 1px solid #e9ecef;
+}
+
+.swing-rr-badge {
+  display: inline-block;
+  color: white;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+/* Watchlist Cards */
+.swing-watchlist-card {
+  border: none;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: fadeInUp 0.4s ease;
+}
+
+.swing-watchlist-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.18);
+}
+
+.swing-card-header-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 16px 20px;
+}
+
+.swing-status-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+}
+
+/* Level Items */
+.swing-levels-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.swing-level-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.swing-level-label {
+  font-size: 0.82rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.swing-level-value {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.swing-rationale {
+  padding: 10px 12px;
+  background: #f8f9ff;
+  border-left: 3px solid #667eea;
+  border-radius: 0 8px 8px 0;
+}
+
+/* Active Swing Cards */
+.swing-active-card {
+  border: none;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: fadeInUp 0.4s ease;
+}
+
+.swing-active-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(40, 167, 69, 0.15);
+}
+
+.swing-active-header {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  padding: 18px 20px;
+}
+
+.swing-status-badge-active {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  letter-spacing: 0.5px;
+}
+
+/* Summary Cards */
+.swing-summary-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s;
+}
+
+.swing-summary-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Progress Bar */
+.swing-progress {
+  height: 10px;
+  border-radius: 6px;
+}
+
+.swing-levels-bar {
+  padding: 10px 12px;
+  background: #f8f9fa;
+  border-radius: 10px;
+}
+
+/* Target Rows */
+.swing-target-details {
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.swing-target-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 0.88rem;
+  transition: background 0.2s;
+}
+
+.swing-target-row:last-child {
+  border-bottom: none;
+}
+
+.swing-target-row:hover {
+  background: #f8f9fa;
+}
+
+.swing-target-row.target-hit {
+  background: #e8f5e9;
+}
+
+.swing-risk-info {
+  padding: 8px 12px;
+  background: #fff5f5;
+  border-radius: 8px;
+  border: 1px solid #ffe0e0;
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .swing-tabs .nav-link {
+    font-size: 0.82rem;
+    padding: 10px 8px;
+  }
+
+  .swing-card-header-gradient,
+  .swing-active-header {
+    padding: 12px 14px;
+  }
+
+  .swing-target-row {
+    font-size: 0.8rem;
+    padding: 8px 10px;
+  }
+
+  .swing-rr-live {
+    gap: 6px;
+    padding: 8px 10px;
+  }
+}
+
+@media (max-width: 576px) {
+  .swing-zone-section {
+    padding: 14px;
+  }
+
+  .swing-tabs .nav-link {
+    font-size: 0.78rem;
+    padding: 8px 4px;
+  }
+}

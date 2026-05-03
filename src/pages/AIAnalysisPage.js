@@ -105,7 +105,7 @@ const AIAnalysisPage = () => {
                 <Col md={12}>
                     <Card className="shadow-sm">
                         <Card.Header style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
-                            <h5 className="mb-0">📊 Weekly Trade Analysis</h5>
+                            <h5 className="mb-0">📊 Trade Analysis</h5>
                         </Card.Header>
                         <Card.Body>
                             <Row className="mb-3">
@@ -176,7 +176,7 @@ const AIAnalysisPage = () => {
                                         Analyzing your trades...
                                     </>
                                 ) : (
-                                    '🚀 Generate Weekly Analysis'
+                                    '🚀 Generate Analysis'
                                 )}
                             </Button>
                         </Card.Body>
