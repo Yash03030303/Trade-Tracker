@@ -177,6 +177,7 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
                 <th className="text-center">Status</th>
                 <th className="text-end">Gross P/L</th>
                 <th className="text-end">Net P/L</th>
+                <th className="text-center">% P/L</th>
                 <th className="text-center">Actions</th>
               </tr>
             </thead>
@@ -199,6 +200,12 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
 
                 const { grossProfit, netProfit, status } = calculateProfitLoss(currentTrade);
                 const isProfit = status === 'closed' && parseFloat(netProfit) >= 0;
+
+                // % P/L = (netProfit / totalBuyValue) * 100
+                const totalBuyValue = currentTrade.buyPrice * currentTrade.quantity;
+                const profitPercent = status === 'closed' && totalBuyValue > 0
+                  ? ((parseFloat(netProfit) / totalBuyValue) * 100).toFixed(2)
+                  : null;
 
                 const buyDate = formatDate(trade.createdAt);
                 const sellDate = status === 'holding' ? 'Holding' : formatDate(trade.createdAt);
@@ -377,6 +384,27 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
                         )}
                       </td>
 
+                      {/* % P/L */}
+                      <td className="text-center text-nowrap">
+                        {profitPercent !== null ? (
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              padding: '2px 8px',
+                              borderRadius: '12px',
+                              fontSize: '0.82rem',
+                              fontWeight: 700,
+                              background: parseFloat(profitPercent) >= 0 ? '#d4edda' : '#f8d7da',
+                              color: parseFloat(profitPercent) >= 0 ? '#155724' : '#721c24'
+                            }}
+                          >
+                            {profitPercent}%
+                          </span>
+                        ) : (
+                          <span className="text-muted">-</span>
+                        )}
+                      </td>
+
                       {/* Actions */}
                       <td className="text-center">
                         {isEditing ? (
@@ -419,7 +447,7 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
                     {(trade.mistakesMade?.length > 0 || trade.lessonsLearned) && (
                       <tr key={`${trade.id}-details`} className="trade-details-row">
                         <td></td>
-                        <td colSpan="15" style={{ background: '#f8f9ff', borderTop: 'none', paddingTop: '4px', paddingBottom: '8px' }}>
+                        <td colSpan="16" style={{ background: '#f8f9ff', borderTop: 'none', paddingTop: '4px', paddingBottom: '8px' }}>
                           <div className="d-flex flex-wrap align-items-start gap-3">
                             {trade.mistakesMade?.length > 0 && (
                               <div>
@@ -464,6 +492,7 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
                     ₹{totalStats.netProfit.toFixed(2)}
                   </strong>
                 </td>
+                <td></td>
                 <td></td>
               </tr>
             </tfoot>
