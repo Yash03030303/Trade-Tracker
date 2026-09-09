@@ -4,7 +4,7 @@ import { Card, Button, Form, Spinner, Alert, Container, Row, Col } from 'react-b
 import { getAuth } from 'firebase/auth';
 
 // Backend API URL — falls back to localhost for local development
-const API_URL = 'http://127.0.0.1:8000';
+const API_URL = process.env.REACT_APP_AI_API_URL;
 
 const AIAnalysisPage = () => {
     const query = "Can you tell me last week's trade analysis?";
@@ -215,7 +215,7 @@ const AIAnalysisPage = () => {
                     <Card.Body className="text-center py-5">
                         <Spinner animation="border" variant="primary" style={{ width: '3rem', height: '3rem' }} />
                         <p className="mt-3 text-muted">
-                        🤖 AI is analyzing your trades... Large models may take 1–3 minutes.
+                            🤖 AI is analyzing your trades... Large models may take 1–3 minutes.
                         </p>
                     </Card.Body>
                 </Card>
