@@ -11,15 +11,18 @@ import {
   faSignOutAlt,
   faBars,
   faTimes,
-  faUser,
   faRobot,
-  faArrowTrendUp
+  faArrowTrendUp,
+  faSun,
+  faMoon
 } from '@fortawesome/free-solid-svg-icons';
+import { useTheme } from '../context/ThemeContext';
 import './Sidebar.css';
 
 const Sidebar = ({ user }) => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(true);
+  const { theme, toggleTheme } = useTheme();
 
   const handleLogout = async () => {
     try {
@@ -30,81 +33,79 @@ const Sidebar = ({ user }) => {
     }
   };
 
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
+  const toggleSidebar = () => setIsOpen(!isOpen);
+
+  // Get initials for avatar
+  const getInitials = () => {
+    const name = user?.displayName || user?.email || 'U';
+    return name.charAt(0).toUpperCase();
   };
+
+  const navItems = [
+    { to: '/dashboard',    icon: faChartLine,    label: 'Dashboard' },
+    { to: '/add-trade',    icon: faPlus,         label: 'Add Trade' },
+    { to: '/all-trades',   icon: faList,         label: 'All Trades' },
+    { to: '/swing-trades', icon: faArrowTrendUp, label: 'Swing Trades' },
+    { to: '/analytics',    icon: faChartBar,     label: 'Analytics' },
+    { to: '/ai-analysis',  icon: faRobot,        label: 'AI Analysis' },
+  ];
 
   return (
     <>
-      <button className="sidebar-toggle" onClick={toggleSidebar}>
+      <button className="sidebar-toggle" onClick={toggleSidebar} aria-label="Toggle sidebar">
         <FontAwesomeIcon icon={isOpen ? faTimes : faBars} />
       </button>
 
       <div className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
+        {/* Header */}
         <div className="sidebar-header">
           <div className="logo-section">
-            <span className="logo-icon">📈</span>
+            <div className="logo-icon-wrap">📈</div>
             <h4 className="logo-text">Trading Tracker</h4>
           </div>
           {user && (
             <div className="user-info">
-              <FontAwesomeIcon icon={faUser} className="me-2" />
-              <span>{user.displayName || user.email}</span>
+              <div className="user-avatar">{getInitials()}</div>
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {user.displayName || user.email}
+              </span>
             </div>
           )}
         </div>
 
+        {/* Navigation */}
         <nav className="sidebar-nav">
-          <NavLink
-            to="/dashboard"
-            className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}
-          >
-            <FontAwesomeIcon icon={faChartLine} className="nav-icon" />
-            <span>Dashboard</span>
-          </NavLink>
-
-          <NavLink
-            to="/add-trade"
-            className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}
-          >
-            <FontAwesomeIcon icon={faPlus} className="nav-icon" />
-            <span>Add Trade</span>
-          </NavLink>
-
-          <NavLink
-            to="/all-trades"
-            className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}
-          >
-            <FontAwesomeIcon icon={faList} className="nav-icon" />
-            <span>All Trades</span>
-          </NavLink>
-
-          <NavLink
-            to="/swing-trades"
-            className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}
-          >
-            <FontAwesomeIcon icon={faArrowTrendUp} className="nav-icon" />
-            <span>Swing Trades</span>
-          </NavLink>
-
-          <NavLink
-            to="/analytics"
-            className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}
-          >
-            <FontAwesomeIcon icon={faChartBar} className="nav-icon" />
-            <span>Analytics</span>
-          </NavLink>
-
-          <NavLink
-            to="/ai-analysis"
-            className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}
-          >
-            <FontAwesomeIcon icon={faRobot} className="nav-icon" />
-            <span>AI Analysis</span>
-          </NavLink>
+          <div className="nav-section-label">Main Menu</div>
+          {navItems.map(({ to, icon, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}
+            >
+              <FontAwesomeIcon icon={icon} className="nav-icon" />
+              <span>{label}</span>
+            </NavLink>
+          ))}
         </nav>
 
+        {/* Footer */}
         <div className="sidebar-footer">
+          {/* Theme Toggle */}
+          <button
+            className={`theme-toggle-btn ${theme === 'light' ? 'light-active' : ''}`}
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+          >
+            <span className="theme-toggle-icon">
+              <FontAwesomeIcon icon={theme === 'dark' ? faMoon : faSun} />
+            </span>
+            <span>{theme === 'dark' ? 'Dark Mode' : 'Light Mode'}</span>
+            <div className="theme-toggle-track">
+              <div className="theme-toggle-thumb" />
+            </div>
+          </button>
+
+          {/* Logout */}
           <button className="logout-btn" onClick={handleLogout}>
             <FontAwesomeIcon icon={faSignOutAlt} className="nav-icon" />
             <span>Logout</span>

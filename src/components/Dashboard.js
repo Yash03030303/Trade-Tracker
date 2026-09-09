@@ -1,232 +1,246 @@
 // src/components/Dashboard.js
 import React from 'react';
-import { Card, Row, Col } from 'react-bootstrap';
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+  PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis,
+  CartesianGrid, Tooltip, ResponsiveContainer, Legend
+} from 'recharts';
 import { calculateProfitLoss } from '../services/tradeService';
+
+/* ─── Custom Tooltip ─── */
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div style={{
+      background: 'var(--bg-surface2)', border: '1px solid var(--border-color)',
+      borderRadius: '10px', padding: '10px 14px',
+      color: 'var(--text-primary)', fontSize: '0.82rem', fontFamily: 'Inter, sans-serif',
+      boxShadow: 'var(--shadow-md)',
+    }}>
+      {label && <div style={{ color: 'var(--text-secondary)', marginBottom: '6px', fontWeight: 600 }}>{label}</div>}
+      {payload.map((p, i) => (
+        <div key={i} style={{ color: p.value >= 0 ? 'var(--profit)' : 'var(--loss)', fontWeight: 700 }}>
+          {typeof p.value === 'number' ? `₹${p.value.toFixed(2)}` : `${p.name}: ${p.value}`}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const PieTooltip = ({ active, payload }) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div style={{
+      background: 'var(--bg-surface2)', border: '1px solid var(--border-color)',
+      borderRadius: '10px', padding: '10px 14px',
+      color: 'var(--text-primary)', fontSize: '0.82rem', fontFamily: 'Inter, sans-serif',
+    }}>
+      <strong>{payload[0].name}</strong>: {payload[0].value}
+    </div>
+  );
+};
+
+/* ─── Stat Card ─── */
+const StatCard = ({ icon, label, value, sub, valueColor, delay }) => (
+  <div className="stat-card" style={{ animationDelay: delay, animation: 'fadeInUp 0.5s ease forwards', opacity: 0 }}>
+    <div className="stat-icon">{icon}</div>
+    <div className="stat-label">{label}</div>
+    <div className="stat-value" style={{ color: valueColor || 'var(--text-primary)' }}>{value}</div>
+    {sub && <div className="stat-sub">{sub}</div>}
+  </div>
+);
 
 const Dashboard = ({ trades }) => {
   if (trades.length === 0) {
     return (
       <div>
-        <h4 className="page-title">📊 Dashboard Overview</h4>
-        <Card className="shadow-sm">
-          <Card.Body className="text-center py-5">
-            <h4 className="text-muted">Welcome to Your Trading Dashboard</h4>
-            <p className="text-muted">Start adding trades to see your analytics here!</p>
-          </Card.Body>
-        </Card>
+        <h4 className="page-title">📊 Dashboard</h4>
+        <div style={{
+          background: 'var(--bg-surface)', border: '1px solid var(--border-color)',
+          borderRadius: '20px', padding: '60px 40px',
+          textAlign: 'center', boxShadow: 'var(--shadow-sm)',
+        }}>
+          <div style={{ fontSize: '3rem', marginBottom: '16px' }}>📈</div>
+          <h4 style={{ color: 'var(--text-primary)', marginBottom: '10px', fontWeight: 700 }}>
+            Welcome to Trading Tracker
+          </h4>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+            Add your first trade to start seeing your analytics here!
+          </p>
+        </div>
       </div>
     );
   }
 
-  // Calculate statistics
+  /* ─── Stats ─── */
   const stats = trades.reduce((acc, trade) => {
     const { netProfit, status } = calculateProfitLoss(trade);
-    
     if (status === 'closed') {
       const profit = parseFloat(netProfit);
-      
-      if (profit > 0) {
-        acc.profitTrades++;
-        acc.totalProfit += profit;
-      } else {
-        acc.lossTrades++;
-        acc.totalLoss += Math.abs(profit);
-      }
+      if (profit > 0) { acc.profitTrades++; acc.totalProfit += profit; }
+      else            { acc.lossTrades++;   acc.totalLoss += Math.abs(profit); }
       acc.closedTrades++;
     } else {
       acc.holdingTrades++;
     }
-    
-    if (trade.tradeType === 'intraday') {
-      acc.intradayCount++;
-    } else {
-      acc.deliveryCount++;
-    }
-    
+    if (trade.tradeType === 'intraday') acc.intradayCount++;
+    else                                acc.deliveryCount++;
     return acc;
-  }, {
-    profitTrades: 0,
-    lossTrades: 0,
-    totalProfit: 0,
-    totalLoss: 0,
-    intradayCount: 0,
-    deliveryCount: 0,
-    closedTrades: 0,
-    holdingTrades: 0
-  });
+  }, { profitTrades: 0, lossTrades: 0, totalProfit: 0, totalLoss: 0, intradayCount: 0, deliveryCount: 0, closedTrades: 0, holdingTrades: 0 });
 
-  const netProfitLoss = stats.totalProfit - stats.totalLoss;
-  const winRate = stats.closedTrades > 0 
-    ? ((stats.profitTrades / stats.closedTrades) * 100).toFixed(1) 
+  const netPL = stats.totalProfit - stats.totalLoss;
+  const winRate = stats.closedTrades > 0
+    ? ((stats.profitTrades / stats.closedTrades) * 100).toFixed(1)
     : 0;
+  const avgPL = stats.closedTrades > 0 ? (netPL / stats.closedTrades).toFixed(2) : '0.00';
 
-  // Pie chart data for trade types
+  /* ─── Chart data ─── */
   const tradeTypeData = [
     { name: 'Intraday', value: stats.intradayCount },
-    { name: 'Delivery', value: stats.deliveryCount }
-  ].filter(item => item.value > 0);
+    { name: 'Delivery', value: stats.deliveryCount },
+  ].filter(d => d.value > 0);
 
-  // Pie chart data for profit/loss
   const profitLossData = [
-    { name: 'Profit Trades', value: stats.profitTrades },
-    { name: 'Loss Trades', value: stats.lossTrades }
-  ].filter(item => item.value > 0);
+    { name: 'Profit', value: stats.profitTrades },
+    { name: 'Loss',   value: stats.lossTrades },
+  ].filter(d => d.value > 0);
 
-  // Bar chart data - last 5 closed trades
   const closedTrades = trades.filter(t => calculateProfitLoss(t).status === 'closed');
-  const recentTradesData = closedTrades.slice(0, 5).reverse().map((trade) => {
-    const { netProfit } = calculateProfitLoss(trade);
-    return {
-      name: trade.stockName,
-      profit: parseFloat(netProfit)
-    };
-  });
+  const recentTradesData = closedTrades.slice(0, 8).reverse().map(t => ({
+    name: t.stockName,
+    profit: parseFloat(calculateProfitLoss(t).netProfit),
+  }));
 
-  const COLORS_TYPE = ['#ffc107', '#17a2b8'];
-  const COLORS_PL = ['#28a745', '#dc3545'];
+  const TYPE_COLORS  = ['#f59e0b', '#06b6d4'];
+  const PL_COLORS    = ['#10b981', '#ef4444'];
+
+  const chartProps = {
+    style: { fontFamily: 'Inter, sans-serif' },
+  };
+
+  const axisStyle = { fill: 'var(--text-muted)', fontSize: 11, fontFamily: 'Inter, sans-serif' };
+  const gridStyle = { stroke: 'var(--border-color)', strokeDasharray: '4 4' };
 
   return (
     <div>
-      <h4 className="page-title">📊 Dashboard Overview</h4>
-      
-      {/* Summary Cards */}
-      <Row className="mb-4">
-        <Col md={3} className="mb-3">
-          <Card className="shadow-sm text-center h-100">
-            <Card.Body>
-              <h6 className="text-muted mb-3">Total Trades</h6>
-              <h2 className="mb-0">{trades.length}</h2>
-              <small className="text-muted">
-                {stats.closedTrades} closed, {stats.holdingTrades} holding
-              </small>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col md={3} className="mb-3">
-          <Card className="shadow-sm text-center h-100">
-            <Card.Body>
-              <h6 className="text-muted mb-3">Net P/L</h6>
-              <h2 className={`mb-0 ${netProfitLoss >= 0 ? 'text-success' : 'text-danger'}`}>
-                ₹{netProfitLoss.toFixed(2)}
-              </h2>
-              <small className="text-muted">From closed trades</small>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col md={3} className="mb-3">
-          <Card className="shadow-sm text-center h-100">
-            <Card.Body>
-              <h6 className="text-muted mb-3">Win Rate</h6>
-              <h2 className="text-primary mb-0">{winRate}%</h2>
-              <small className="text-muted">
-                {stats.profitTrades} wins / {stats.lossTrades} losses
-              </small>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col md={3} className="mb-3">
-          <Card className="shadow-sm text-center h-100">
-            <Card.Body>
-              <h6 className="text-muted mb-3">Avg P/L</h6>
-              <h2 className="mb-0">
-                ₹{stats.closedTrades > 0 ? (netProfitLoss / stats.closedTrades).toFixed(2) : '0.00'}
-              </h2>
-              <small className="text-muted">Per closed trade</small>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
+      <h4 className="page-title">📊 Dashboard</h4>
 
-      {/* Charts */}
-      <Row>
-        <Col md={4} className="mb-4">
-          <Card className="shadow-sm h-100">
-            <Card.Header>Trade Types Distribution</Card.Header>
-            <Card.Body>
-              {tradeTypeData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={250}>
-                  <PieChart>
-                    <Pie
-                      data={tradeTypeData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {tradeTypeData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS_TYPE[index % COLORS_TYPE.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="text-center py-5 text-muted">No data</div>
-              )}
-            </Card.Body>
-          </Card>
-        </Col>
+      {/* KPI Cards */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gap: '20px',
+        marginBottom: '28px',
+      }}>
+        <StatCard
+          icon="📋" label="Total Trades"
+          value={trades.length}
+          sub={`${stats.closedTrades} closed · ${stats.holdingTrades} holding`}
+          delay="0s"
+        />
+        <StatCard
+          icon={netPL >= 0 ? '💰' : '📉'} label="Net P/L"
+          value={`${netPL >= 0 ? '+' : ''}₹${netPL.toFixed(2)}`}
+          valueColor={netPL >= 0 ? 'var(--profit)' : 'var(--loss)'}
+          sub="From closed trades"
+          delay="0.08s"
+        />
+        <StatCard
+          icon="🎯" label="Win Rate"
+          value={`${winRate}%`}
+          valueColor="var(--accent)"
+          sub={`${stats.profitTrades}W / ${stats.lossTrades}L`}
+          delay="0.16s"
+        />
+        <StatCard
+          icon="📈" label="Avg P/L"
+          value={`₹${avgPL}`}
+          sub="Per closed trade"
+          delay="0.24s"
+        />
+      </div>
 
-        <Col md={4} className="mb-4">
-          <Card className="shadow-sm h-100">
-            <Card.Header>Profit vs Loss Trades</Card.Header>
-            <Card.Body>
-              {profitLossData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={250}>
-                  <PieChart>
-                    <Pie
-                      data={profitLossData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {profitLossData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS_PL[index % COLORS_PL.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="text-center py-5 text-muted">No closed trades</div>
-              )}
-            </Card.Body>
-          </Card>
-        </Col>
+      {/* Charts Row */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
 
-        <Col md={4} className="mb-4">
-          <Card className="shadow-sm h-100">
-            <Card.Header>Recent 5 Closed Trades</Card.Header>
-            <Card.Body>
-              {recentTradesData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={recentTradesData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="profit" fill="#8884d8">
-                      {recentTradesData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.profit >= 0 ? '#28a745' : '#dc3545'} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="text-center py-5 text-muted">No closed trades yet</div>
-              )}
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
+        {/* Trade Type Distribution */}
+        <div className="card" style={{ padding: '20px' }}>
+          <div style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '16px' }}>
+            Trade Types
+          </div>
+          {tradeTypeData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={220} {...chartProps}>
+              <PieChart>
+                <Pie data={tradeTypeData} cx="50%" cy="50%" innerRadius={55} outerRadius={85}
+                  labelLine={false} dataKey="value"
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                  {tradeTypeData.map((_, i) => (
+                    <Cell key={i} fill={TYPE_COLORS[i % TYPE_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip content={<PieTooltip />} />
+                <Legend wrapperStyle={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }} />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div style={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+              No data yet
+            </div>
+          )}
+        </div>
+
+        {/* Profit vs Loss */}
+        <div className="card" style={{ padding: '20px' }}>
+          <div style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '16px' }}>
+            Profit vs Loss Trades
+          </div>
+          {profitLossData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={220} {...chartProps}>
+              <PieChart>
+                <Pie data={profitLossData} cx="50%" cy="50%" innerRadius={55} outerRadius={85}
+                  labelLine={false} dataKey="value"
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                  {profitLossData.map((_, i) => (
+                    <Cell key={i} fill={PL_COLORS[i % PL_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip content={<PieTooltip />} />
+                <Legend wrapperStyle={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }} />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div style={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+              No closed trades
+            </div>
+          )}
+        </div>
+
+        {/* Recent Trades Bar */}
+        <div className="card" style={{ padding: '20px' }}>
+          <div style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '16px' }}>
+            Recent Closed Trades
+          </div>
+          {recentTradesData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={220} {...chartProps}>
+              <BarChart data={recentTradesData} barSize={20}>
+                <CartesianGrid {...gridStyle} vertical={false} />
+                <XAxis dataKey="name" tick={axisStyle} axisLine={false} tickLine={false} />
+                <YAxis tick={axisStyle} axisLine={false} tickLine={false} tickFormatter={v => `₹${v}`} />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="profit" radius={[6, 6, 0, 0]}>
+                  {recentTradesData.map((entry, i) => (
+                    <Cell key={i} fill={entry.profit >= 0 ? '#10b981' : '#ef4444'} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div style={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+              No closed trades yet
+            </div>
+          )}
+        </div>
+
+      </div>
     </div>
   );
 };

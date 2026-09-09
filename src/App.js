@@ -1,5 +1,6 @@
 // src/App.js
 import React, { useState, useEffect } from 'react';
+import { ThemeProvider } from './context/ThemeContext';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Alert, Container } from 'react-bootstrap';
 import { onAuthStateChange } from './services/authService';
@@ -112,19 +113,28 @@ function App() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+        background: 'linear-gradient(135deg, #0a0e1a 0%, #1a1040 50%, #0a0e1a 100%)'
       }}>
         <div className="text-center">
-          <div className="spinner-border text-light" role="status" style={{ width: '3rem', height: '3rem' }}>
+          <div style={{
+            width: '64px', height: '64px', borderRadius: '18px',
+            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '2rem', margin: '0 auto 20px',
+            boxShadow: '0 0 30px rgba(99,102,241,0.5)',
+            animation: 'pulse 2s infinite'
+          }}>📈</div>
+          <div className="spinner-border" role="status" style={{ width: '2rem', height: '2rem', borderColor: '#6366f1', borderRightColor: 'transparent' }}>
             <span className="visually-hidden">Loading...</span>
           </div>
-          <p className="text-white mt-3">Loading...</p>
+          <p style={{ color: '#94a3b8', marginTop: '16px', fontFamily: 'Inter, sans-serif', fontSize: '0.9rem' }}>Loading your dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
+    <ThemeProvider>
     <Router>
       <div className="App">
         <Routes>
@@ -181,6 +191,7 @@ function App() {
         </Routes>
       </div>
     </Router>
+    </ThemeProvider>
   );
 }
 

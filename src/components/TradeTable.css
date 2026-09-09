@@ -13,40 +13,38 @@
   overflow-y: auto;
   max-height: 600px;
   position: relative;
-  border-radius: 8px;
-  border: 1px solid #dee2e6;
-  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface);
 }
 
-/* Custom Scrollbar for Modern Browsers */
+/* Custom Scrollbar */
 .table-scroll-container::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+  width: 6px;
+  height: 6px;
 }
 
 .table-scroll-container::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--scrollbar-track);
   border-radius: 10px;
 }
 
 .table-scroll-container::-webkit-scrollbar-thumb {
-  background: #888;
+  background: var(--scrollbar-thumb);
   border-radius: 10px;
-  border: 2px solid #f1f1f1;
 }
 
 .table-scroll-container::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: var(--accent);
 }
 
 .table-scroll-container::-webkit-scrollbar-corner {
-  background: #f1f1f1;
+  background: var(--scrollbar-track);
 }
 
-/* Firefox Scrollbar */
 .table-scroll-container {
   scrollbar-width: thin;
-  scrollbar-color: #888 #f1f1f1;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
 /* Trade Table */
@@ -54,8 +52,9 @@
   width: 100%;
   min-width: 1800px;
   margin-bottom: 0 !important;
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   white-space: nowrap;
+  font-family: 'Inter', sans-serif;
 }
 
 /* Sticky Table Header */
@@ -63,18 +62,19 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: #f8f9fa !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .sticky-header th {
-  background-color: #f8f9fa !important;
-  font-weight: 600;
+  background: var(--bg-surface2) !important;
+  color: var(--text-secondary) !important;
+  font-weight: 700;
   text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.5px;
-  padding: 12px 8px;
-  border-bottom: 2px solid #dee2e6 !important;
+  font-size: 0.71rem;
+  letter-spacing: 0.8px;
+  padding: 13px 10px;
+  border-bottom: 1px solid var(--border-color) !important;
+  border-top: none !important;
 }
 
 /* Sticky Table Footer */
@@ -82,64 +82,84 @@
   position: sticky;
   bottom: 0;
   z-index: 10;
-  background-color: #f8f9fa !important;
-  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .sticky-footer td {
-  background-color: #f8f9fa !important;
-  font-weight: 600;
-  padding: 12px 8px;
-  border-top: 2px solid #dee2e6 !important;
+  background: var(--bg-surface2) !important;
+  color: var(--text-primary) !important;
+  font-weight: 700;
+  padding: 12px 10px;
+  border-top: 1px solid var(--border-color) !important;
+  font-size: 0.82rem;
 }
 
 /* Table Body */
 .trade-table tbody tr {
-  transition: background-color 0.2s;
+  transition: background 0.2s ease;
+  border-bottom: 1px solid var(--border-color) !important;
 }
 
-.trade-table tbody tr:hover {
-  background-color: rgba(0, 123, 255, 0.05);
+.trade-table tbody tr:last-child {
+  border-bottom: none !important;
+}
+
+.trade-table tbody tr:hover td {
+  background: var(--bg-surface2) !important;
 }
 
 .trade-table tbody td {
-  padding: 10px 8px;
+  padding: 11px 10px;
   vertical-align: middle;
+  background: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Profit row highlight */
+.trade-table tbody tr.profit-row td {
+  background: rgba(16, 185, 129, 0.04) !important;
+}
+
+/* Loss row highlight */
+.trade-table tbody tr.loss-row td {
+  background: rgba(239, 68, 68, 0.04) !important;
 }
 
 /* Editing Row Highlight */
-.editing-row {
-  background-color: rgba(255, 193, 7, 0.1) !important;
-  border-left: 3px solid #ffc107 !important;
+.editing-row td {
+  background: rgba(99, 102, 241, 0.06) !important;
+  border-left: 2px solid var(--accent) !important;
 }
 
-.editing-row:hover {
-  background-color: rgba(255, 193, 7, 0.15) !important;
+.editing-row:hover td {
+  background: rgba(99, 102, 241, 0.1) !important;
 }
 
 /* Edit Mode Form Controls */
 .editing-row .form-control,
 .editing-row .form-select {
+  background: var(--input-bg) !important;
+  border: 1px solid var(--accent) !important;
+  color: var(--text-primary) !important;
   font-size: 0.8rem;
   padding: 4px 8px;
   height: auto;
-  border: 1px solid #667eea;
-  background-color: white;
+  border-radius: 8px !important;
 }
 
 .editing-row .form-control:focus,
 .editing-row .form-select:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+  box-shadow: 0 0 0 2px var(--input-focus) !important;
 }
 
-/* Button Groups in Actions Column */
+/* Button Groups */
 .btn-group-vertical {
   width: 100%;
 }
 
 .btn-group-vertical .btn {
-  border-radius: 4px !important;
+  border-radius: 8px !important;
 }
 
 .btn-group-vertical .btn:first-child {
@@ -151,11 +171,11 @@
   white-space: nowrap;
 }
 
-/* Mobile Responsive Adjustments */
+/* Mobile Responsive */
 @media (max-width: 768px) {
   .table-scroll-container {
     max-height: 500px;
-    border-radius: 5px;
+    border-radius: 8px;
   }
 
   .trade-table {
@@ -164,73 +184,29 @@
   }
 
   .sticky-header th {
-    font-size: 0.7rem;
-    padding: 10px 6px;
+    font-size: 0.68rem;
+    padding: 10px 7px;
   }
 
   .trade-table tbody td {
-    padding: 8px 6px;
-  }
-
-  .btn-sm {
-    font-size: 0.7rem;
-    padding: 4px 8px;
-  }
-
-  .badge {
-    font-size: 0.65rem;
-    padding: 4px 8px;
-  }
-
-  .editing-row .form-control,
-  .editing-row .form-select {
-    font-size: 0.75rem;
-    padding: 3px 6px;
+    padding: 9px 7px;
   }
 }
 
 @media (max-width: 576px) {
-  .table-scroll-container {
-    max-height: 400px;
-  }
-
-  .trade-table {
-    min-width: 1400px;
-    font-size: 0.7rem;
-  }
-
-  .sticky-header th {
-    font-size: 0.65rem;
-    padding: 8px 4px;
-  }
-
-  .trade-table tbody td {
-    padding: 6px 4px;
-  }
-
-  .editing-row .form-control,
-  .editing-row .form-select {
-    font-size: 0.7rem;
-    padding: 2px 4px;
-  }
+  .table-scroll-container { max-height: 400px; }
+  .trade-table { min-width: 1400px; font-size: 0.7rem; }
+  .sticky-header th { font-size: 0.62rem; padding: 8px 5px; }
+  .trade-table tbody td { padding: 7px 5px; }
 }
 
-/* Tablet Adjustments */
 @media (min-width: 769px) and (max-width: 1024px) {
-  .table-scroll-container {
-    max-height: 550px;
-  }
-
-  .trade-table {
-    min-width: 1700px;
-  }
+  .table-scroll-container { max-height: 550px; }
+  .trade-table { min-width: 1700px; }
 }
 
-/* Large Screens */
 @media (min-width: 1400px) {
-  .table-scroll-container {
-    max-height: 700px;
-  }
+  .table-scroll-container { max-height: 700px; }
 }
 
 /* Print Styles */
@@ -241,17 +217,7 @@
     border: none;
   }
 
-  .sticky-header,
-  .sticky-footer {
-    position: relative;
-  }
-
-  .trade-table {
-    min-width: auto;
-  }
-
-  .editing-row {
-    background-color: white !important;
-    border-left: none !important;
-  }
+  .sticky-header, .sticky-footer { position: relative; }
+  .trade-table { min-width: auto; }
+  .editing-row td { background: white !important; border-left: none !important; }
 }

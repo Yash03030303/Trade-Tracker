@@ -1,13 +1,138 @@
-body {
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* =========================================
+   CSS CUSTOM PROPERTIES — THEME TOKENS
+   ========================================= */
+
+/* ─── DARK MODE — Deep Forest Green ─── */
+/* Palette: #051F20 · #0B2B26 · #163832 · #235347 · #8EB69B · #DAF1DE · white */
+:root[data-theme="dark"] {
+  /* Backgrounds — layered forest depths */
+  --bg-base:         #051F20;   /* deepest forest */
+  --bg-surface:      #0B2B26;   /* dark forest card */
+  --bg-surface2:     #163832;   /* mid forest */
+  --bg-surface3:     #235347;   /* lighter forest accent */
+  --border-color:    rgba(142, 182, 155, 0.12);
+  --border-accent:   rgba(142, 182, 155, 0.35);
+
+  /* Accent — sage green that pops on dark forest */
+  --accent:          #8EB69B;
+  --accent-2:        #DAF1DE;
+  --accent-grad:     linear-gradient(135deg, #235347 0%, #8EB69B 100%);
+  --accent-glow:     rgba(142, 182, 155, 0.22);
+
+  /* Profit / Loss */
+  --profit:          #8EB69B;
+  --profit-bg:       rgba(142, 182, 155, 0.12);
+  --loss:            #f87171;
+  --loss-bg:         rgba(248, 113, 113, 0.1);
+  --warning:         #fbbf24;
+
+  /* Typography */
+  --text-primary:    #DAF1DE;   /* mint white */
+  --text-secondary:  #8EB69B;   /* sage */
+  --text-muted:      #4a7a65;
+  --text-inverse:    #051F20;
+
+  /* Inputs */
+  --input-bg:        #0B2B26;
+  --input-border:    rgba(142, 182, 155, 0.18);
+  --input-focus:     rgba(142, 182, 155, 0.28);
+
+  /* Shadows */
+  --shadow-sm:       0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-md:       0 4px 20px rgba(0, 0, 0, 0.6);
+  --shadow-lg:       0 8px 40px rgba(0, 0, 0, 0.7);
+  --shadow-glow:     0 0 24px rgba(142, 182, 155, 0.18);
+
+  --scrollbar-thumb: rgba(142, 182, 155, 0.35);
+  --scrollbar-track: rgba(142, 182, 155, 0.05);
+}
+
+/* ─── LIGHT MODE — Mint White + Forest Green ─── */
+:root[data-theme="light"] {
+  /* Backgrounds — clean white with mint accents */
+  --bg-base:         #DAF1DE;   /* mint background */
+  --bg-surface:      #ffffff;   /* pure white cards */
+  --bg-surface2:     #f0faf3;   /* very light mint */
+  --bg-surface3:     #d4edda;   /* soft mint tint */
+  --border-color:    rgba(5, 31, 32, 0.1);
+  --border-accent:   rgba(5, 31, 32, 0.22);
+
+  /* Accent — deep forest green */
+  --accent:          #051F20;
+  --accent-2:        #235347;
+  --accent-grad:     linear-gradient(135deg, #051F20 0%, #235347 100%);
+  --accent-glow:     rgba(5, 31, 32, 0.12);
+
+  /* Profit / Loss */
+  --profit:          #235347;
+  --profit-bg:       rgba(35, 83, 71, 0.08);
+  --loss:            #b91c1c;
+  --loss-bg:         rgba(185, 28, 28, 0.07);
+  --warning:         #b45309;
+
+  /* Typography */
+  --text-primary:    #051F20;
+  --text-secondary:  #163832;
+  --text-muted:      #8EB69B;
+  --text-inverse:    #ffffff;
+
+  /* Inputs */
+  --input-bg:        #ffffff;
+  --input-border:    rgba(5, 31, 32, 0.15);
+  --input-focus:     rgba(5, 31, 32, 0.15);
+
+  /* Shadows */
+  --shadow-sm:       0 2px 8px rgba(5, 31, 32, 0.07);
+  --shadow-md:       0 4px 20px rgba(5, 31, 32, 0.10);
+  --shadow-lg:       0 8px 40px rgba(5, 31, 32, 0.14);
+  --shadow-glow:     0 0 20px rgba(5, 31, 32, 0.10);
+
+  --scrollbar-thumb: rgba(5, 31, 32, 0.25);
+  --scrollbar-track: rgba(5, 31, 32, 0.05);
+}
+
+/* =========================================
+   KEYFRAME ANIMATIONS
+   ========================================= */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(142, 182, 155, 0.4); }
+  50%       { transform: scale(1.06); box-shadow: 0 0 35px rgba(142, 182, 155, 0.7); }
+}
+
+/* =========================================
+   GLOBAL RESET & BASE
+   ========================================= */
+* {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  background: var(--bg-base);
+  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: 'Courier New', Courier, monospace;
 }

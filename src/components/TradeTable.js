@@ -468,7 +468,7 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
                             {trade.lessonsLearned && (
                               <div style={{ flex: 1 }}>
                                 <small className="text-muted" style={{ fontWeight: 600 }}>📝 Lesson: </small>
-                                <small style={{ color: '#495057' }}>{trade.lessonsLearned}</small>
+                                <small style={{ color: 'var(--text-secondary)' }}>{trade.lessonsLearned}</small>
                               </div>
                             )}
                           </div>

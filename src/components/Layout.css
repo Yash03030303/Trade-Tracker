@@ -3,24 +3,26 @@
 .layout {
   display: flex;
   min-height: 100vh;
-  background: #f5f6fa;
+  background: var(--bg-base);
+  transition: background 0.3s ease;
 }
 
 .main-content {
   flex: 1;
   margin-left: 260px;
-  padding: 30px;
-  transition: margin-left 0.3s ease;
+  padding: 32px 30px;
+  transition: margin-left 0.3s ease, width 0.3s ease;
   overflow-y: auto;
   overflow-x: hidden;
   min-height: 100vh;
-  background: #f5f6fa;
+  background: var(--bg-base);
   width: calc(100% - 260px);
 }
 
-/* Adjust content area when sidebar is visible */
+/* When sidebar is open */
 .sidebar.open ~ .main-content {
   margin-left: 260px;
+  width: calc(100% - 260px);
 }
 
 /* When sidebar is closed */
@@ -33,12 +35,13 @@
 @media (max-width: 1024px) {
   .main-content {
     margin-left: 0;
-    padding: 20px 15px;
+    padding: 20px 16px;
     width: 100%;
   }
-  
+
   .sidebar.open ~ .main-content {
     margin-left: 0;
+    width: 100%;
   }
 }
 
@@ -46,30 +49,27 @@
 @media (max-width: 768px) {
   .main-content {
     margin-left: 0;
-    padding: 80px 10px 30px;
+    padding: 80px 12px 30px;
     width: 100%;
   }
-  
+
   .sidebar.open ~ .main-content {
     margin-left: 0;
   }
 
-  /* Add overlay when sidebar is open on mobile */
   .sidebar.open ~ .main-content::before {
     content: '';
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(2px);
     z-index: 999;
   }
 }
 
-/* Small Mobile Devices */
+/* Small Mobile */
 @media (max-width: 576px) {
   .main-content {
-    padding: 70px 5px 20px;
+    padding: 70px 8px 20px;
   }
 }
