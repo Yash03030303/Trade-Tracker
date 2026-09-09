@@ -250,14 +250,14 @@ const AnalyticsPage = ({ trades }) => {
         <Row className="mb-4">
           <Col md={12}>
             <Card className="shadow-sm mistake-analytics-card">
-              <Card.Header style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
+              <Card.Header style={{ background: 'var(--accent-grad)', color: 'white' }}>
                 <h5 className="mb-0">⚠️ Mistakes Analysis</h5>
               </Card.Header>
               <Card.Body>
                 <Row>
                   {/* Mistake Frequency Bar Chart */}
                   <Col md={7} className="mb-3">
-                    <h6 className="mb-3" style={{ fontWeight: 700, color: '#495057' }}>
+                    <h6 className="mb-3" style={{ fontWeight: 700, color: 'var(--text-secondary)' }}>
                       Mistake Frequency
                       <span className="text-muted ms-2" style={{ fontSize: '0.85rem', fontWeight: 400 }}>
                         (across {trades.length} trades)
@@ -281,7 +281,7 @@ const AnalyticsPage = ({ trades }) => {
 
                   {/* Mistakes on Win vs Loss */}
                   <Col md={5} className="mb-3">
-                    <h6 className="mb-3" style={{ fontWeight: 700, color: '#495057' }}>Win vs Loss Breakdown</h6>
+                    <h6 className="mb-3" style={{ fontWeight: 700, color: 'var(--text-secondary)' }}>Win vs Loss Breakdown</h6>
                     <Table size="sm" hover className="mb-0">
                       <thead>
                         <tr>
@@ -349,7 +349,7 @@ const AnalyticsPage = ({ trades }) => {
                         </Badge>
                       )}
                     </div>
-                    <p className="mb-0" style={{ fontSize: '0.95rem', color: '#495057' }}>
+                    <p className="mb-0" style={{ fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
                       {item.lesson}
                     </p>
                   </div>

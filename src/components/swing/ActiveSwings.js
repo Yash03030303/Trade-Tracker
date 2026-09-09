@@ -37,7 +37,7 @@ const ActiveSwings = ({ trades, onTargetHit, onCloseTrade }) => {
           <Card className="swing-summary-card text-center">
             <Card.Body>
               <small className="text-muted">Active Trades</small>
-              <h3 className="mb-0 fw-bold" style={{color:'#667eea'}}>{active.length}</h3>
+              <h3 className="mb-0 fw-bold" style={{color:'var(--accent)'}}>{active.length}</h3>
             </Card.Body>
           </Card>
         </Col>

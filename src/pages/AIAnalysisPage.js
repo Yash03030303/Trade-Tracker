@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { Card, Button, Form, Spinner, Alert, Container, Row, Col } from 'react-bootstrap';
 import { getAuth } from 'firebase/auth';
 
-// Backend API URL — change this to your Render URL after deployment
-const API_URL = process.env.REACT_APP_AI_API_URL;
+// Backend API URL — falls back to localhost for local development
+const API_URL = 'http://127.0.0.1:8000';
 
 const AIAnalysisPage = () => {
     const query = "Can you tell me last week's trade analysis?";
@@ -35,16 +35,33 @@ const AIAnalysisPage = () => {
                 return;
             }
 
-            const response = await fetch(`${API_URL}/weekly-analysis`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    user_id: user.uid,
-                    start_date: startDate,
-                    end_date: endDate,
-                    query: query,
-                }),
-            });
+            // Set a 180-second timeout — large AI models can take 90-120s for full analysis
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => {
+                controller.abort();
+            }, 180000);
+
+            let response;
+            try {
+                response = await fetch(`${API_URL}/weekly-analysis`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: user.uid,
+                        start_date: startDate,
+                        end_date: endDate,
+                        query: query,
+                    }),
+                    signal: controller.signal,
+                });
+            } catch (fetchErr) {
+                if (fetchErr.name === 'AbortError') {
+                    throw new Error('Request timed out after 3 minutes. The AI server may be overloaded — please try again.');
+                }
+                throw new Error(`Cannot reach the AI server at ${API_URL}. Make sure the market-assistant backend is running.`);
+            } finally {
+                clearTimeout(timeoutId);
+            }
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
@@ -68,11 +85,11 @@ const AIAnalysisPage = () => {
         return text.split('\n').map((line, index) => {
             // Bold headers (lines starting with **)
             if (line.match(/^\*\*.*\*\*$/)) {
-                return <h5 key={index} style={{ marginTop: '1rem', color: '#667eea' }}>{line.replace(/\*\*/g, '')}</h5>;
+                return <h5 key={index} style={{ marginTop: '1rem', color: 'var(--accent)' }}>{line.replace(/\*\*/g, '')}</h5>;
             }
             // Section headers with emoji
             if (line.match(/^#+\s/)) {
-                return <h5 key={index} style={{ marginTop: '1rem', color: '#667eea' }}>{line.replace(/^#+\s/, '')}</h5>;
+                return <h5 key={index} style={{ marginTop: '1rem', color: 'var(--accent)' }}>{line.replace(/^#+\s/, '')}</h5>;
             }
             // Bold text within lines
             if (line.includes('**')) {
@@ -104,7 +121,7 @@ const AIAnalysisPage = () => {
             <Row className="mb-4">
                 <Col md={12}>
                     <Card className="shadow-sm">
-                        <Card.Header style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
+                        <Card.Header style={{ background: 'var(--accent-grad)', color: 'white' }}>
                             <h5 className="mb-0">📊 Trade Analysis</h5>
                         </Card.Header>
                         <Card.Body>
@@ -164,7 +181,7 @@ const AIAnalysisPage = () => {
                                 onClick={handleAnalyze}
                                 disabled={loading}
                                 style={{
-                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                    background: 'var(--accent-grad)',
                                     border: 'none',
                                     fontWeight: 600,
                                     padding: '10px 30px',
@@ -198,7 +215,7 @@ const AIAnalysisPage = () => {
                     <Card.Body className="text-center py-5">
                         <Spinner animation="border" variant="primary" style={{ width: '3rem', height: '3rem' }} />
                         <p className="mt-3 text-muted">
-                            🤖 AI is analyzing your trades... This may take 15-30 seconds.
+                        🤖 AI is analyzing your trades... Large models may take 1–3 minutes.
                         </p>
                     </Card.Body>
                 </Card>
