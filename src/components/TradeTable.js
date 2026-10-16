@@ -1,14 +1,22 @@
 // src/components/TradeTable.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, Button, Badge, Card, Form, Row, Col, ButtonGroup } from 'react-bootstrap';
 import { calculateProfitLoss } from '../services/tradeService';
 import './TradeTable.css';
+
+const ITEMS_PER_PAGE = 30;
 
 const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [editFormData, setEditFormData] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset to page 1 whenever filter or search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, searchTerm]);
 
   if (loading) {
     return (
@@ -29,6 +37,28 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
     const matchesSearch = trade.stockName.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesType && matchesSearch;
   });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredTrades.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, filteredTrades.length);
+  const paginatedTrades = filteredTrades.slice(startIndex, endIndex);
+
+  const handlePrevPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
+  const handleNextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
+  const handlePageClick = (page) => setCurrentPage(page);
+
+  // Generate page number array (show max 5 pages around current)
+  const getPageNumbers = () => {
+    const pages = [];
+    const delta = 2;
+    const left = Math.max(1, currentPage - delta);
+    const right = Math.min(totalPages, currentPage + delta);
+    if (left > 1) { pages.push(1); if (left > 2) pages.push('...'); }
+    for (let i = left; i <= right; i++) pages.push(i);
+    if (right < totalPages) { if (right < totalPages - 1) pages.push('...'); pages.push(totalPages); }
+    return pages;
+  };
 
   if (filteredTrades.length === 0) {
     return (
@@ -182,7 +212,7 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
               </tr>
             </thead>
             <tbody>
-              {filteredTrades.map((trade, index) => {
+              {paginatedTrades.map((trade, index) => {
                 const isEditing = editingId === trade.id;
                 //const hasMistakesOrLessons = (trade.mistakesMade?.length > 0 || trade.lessonsLearned);
 
@@ -218,7 +248,7 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
                 return (
                   <React.Fragment key={trade.id}>
                     <tr className={isEditing ? 'editing-row' : ''}>
-                      <td className="text-center">{index + 1}</td>
+                      <td className="text-center">{startIndex + index + 1}</td>
 
                       {/* Stock Name */}
                       <td className="text-nowrap">
@@ -499,9 +529,51 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
           </Table>
         </div>
 
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="pagination-wrapper">
+            <div className="pagination-info">
+              Showing <strong>{startIndex + 1}–{endIndex}</strong> of <strong>{filteredTrades.length}</strong> trades
+            </div>
+            <div className="pagination-controls">
+              <button
+                className="page-btn page-btn-nav"
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+                title="Previous Page"
+              >
+                ← Prev
+              </button>
+
+              {getPageNumbers().map((page, i) =>
+                page === '...' ? (
+                  <span key={`ellipsis-${i}`} className="page-ellipsis">…</span>
+                ) : (
+                  <button
+                    key={page}
+                    className={`page-btn ${currentPage === page ? 'page-btn-active' : ''}`}
+                    onClick={() => handlePageClick(page)}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
+
+              <button
+                className="page-btn page-btn-nav"
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+                title="Next Page"
+              >
+                Next →
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Info Note */}
         <div className="text-muted text-center mt-2" style={{ fontSize: '0.85rem' }}>
-          <small>📝 Click Edit to modify any trade • Scroll horizontally to view all columns • Total: {filteredTrades.length}</small>
+          <small>📝 Click Edit to modify any trade • Scroll horizontally to view all columns • Showing {startIndex + 1}–{endIndex} of {filteredTrades.length} trades</small>
         </div>
       </Card.Body>
     </Card>
