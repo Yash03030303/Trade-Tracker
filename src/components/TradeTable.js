@@ -237,8 +237,8 @@ const TradeTable = ({ trades, onDeleteTrade, onUpdateTrade, loading }) => {
                   ? ((parseFloat(netProfit) / totalBuyValue) * 100).toFixed(2)
                   : null;
 
-                const buyDate = formatDate(trade.createdAt);
-                const sellDate = status === 'holding' ? 'Holding' : formatDate(trade.createdAt);
+                const buyDate = formatDate(trade.buyDate || trade.createdAt);
+                const sellDate = status === 'holding' ? 'Holding' : formatDate(trade.sellDate);
 
                 const totalBuy = (currentTrade.buyPrice * currentTrade.quantity).toFixed(2);
                 const totalSell = status === 'holding'
