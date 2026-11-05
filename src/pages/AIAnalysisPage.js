@@ -11,6 +11,7 @@ const AIAnalysisPage = () => {
     const [analysis, setAnalysis] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [noTrades, setNoTrades] = useState(false);
 
     // Auto-calculate last 7 days
     const today = new Date();
@@ -24,6 +25,7 @@ const AIAnalysisPage = () => {
         setLoading(true);
         setError('');
         setAnalysis('');
+        setNoTrades(false);
 
         try {
             const auth = getAuth();
@@ -69,7 +71,13 @@ const AIAnalysisPage = () => {
             }
 
             const data = await response.json();
-            setAnalysis(data.analysis);
+
+            // Backend skipped the LLM — no trades in the selected period
+            if (data.status === 'no_trades') {
+                setNoTrades(true);
+            } else {
+                setAnalysis(data.analysis);
+            }
         } catch (err) {
             console.error('Analysis error:', err);
             setError(err.message || 'Failed to generate analysis. Please try again.');
@@ -219,6 +227,25 @@ const AIAnalysisPage = () => {
                         </p>
                     </Card.Body>
                 </Card>
+            )}
+
+            {/* No Trades Available */}
+            {noTrades && !loading && (
+                <Row className="mb-4">
+                    <Col md={12}>
+                        <Card className="shadow-sm">
+                            <Card.Body className="text-center py-5">
+                                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📭</div>
+                                <h5 style={{ color: 'var(--accent)', fontWeight: 700 }}>No Trades Available</h5>
+                                <p className="text-muted mb-0">
+                                    No trades were found between <strong>{startDate}</strong> and <strong>{endDate}</strong>.
+                                    <br />
+                                    Please select a different date range or add trades for this period.
+                                </p>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
             )}
 
             {/* Analysis Result */}
