@@ -1,10 +1,24 @@
 // src/pages/AnalyticsPage.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Row, Col, Table, Container, Form, Badge } from 'react-bootstrap';
 import { calculateProfitLoss } from '../services/tradeService';
 
 const AnalyticsPage = ({ trades }) => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+
+  const getItemsPerPage = () => (typeof window !== 'undefined' && window.innerWidth < 768) ? 2 : 4;
+  const [itemsPerPage, setItemsPerPage] = useState(getItemsPerPage);
+  const [monthPnlPage, setMonthPnlPage] = useState(0); // 0 = most recent
+
+  useEffect(() => {
+    const handleResize = () => {
+      setItemsPerPage(getItemsPerPage());
+      setMonthPnlPage(0);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (trades.length === 0) {
     return (
@@ -129,6 +143,38 @@ const AnalyticsPage = ({ trades }) => {
       monthlyData[monthKey].profit += parseFloat(netProfit);
     }
   });
+
+  // Build complete month list from first trade → current month (fill gaps with 0)
+  const buildFullMonthList = () => {
+    let earliest = null;
+    trades.forEach(trade => {
+      if (trade.createdAt) {
+        const d = typeof trade.createdAt.toDate === 'function'
+          ? trade.createdAt.toDate()
+          : new Date(trade.createdAt);
+        if (!earliest || d < earliest) earliest = d;
+      }
+    });
+    if (!earliest) return [];
+
+    const now = new Date();
+    const result = [];
+    const cursor = new Date(earliest.getFullYear(), earliest.getMonth(), 1);
+    const endDate = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    while (cursor <= endDate) {
+      const key = `${cursor.toLocaleString('default', { month: 'short' })} ${cursor.getFullYear()}`;
+      result.push({
+        key,
+        profit: monthlyData[key]?.profit ?? 0,
+        trades: monthlyData[key]?.trades ?? 0
+      });
+      cursor.setMonth(cursor.getMonth() + 1);
+    }
+    return result;
+  };
+
+  const allMonthsList = buildFullMonthList();
 
   // ===== MISTAKES ANALYSIS =====
   const mistakeFrequency = {};
@@ -326,6 +372,84 @@ const AnalyticsPage = ({ trades }) => {
           </Col>
         </Row>
       )}
+
+      {/* ===== MONTHLY P&L ===== */}
+      {allMonthsList.length > 0 && (() => {
+        const now = new Date();
+        const currentMonthKey = `${now.toLocaleString('default', { month: 'short' })} ${now.getFullYear()}`;
+        const totalPages = Math.ceil(allMonthsList.length / itemsPerPage);
+        // page 0 = most recent; reverse to get recent-first, slice, then re-reverse to show chronologically
+        const currentPageMonths = [...allMonthsList]
+          .reverse()
+          .slice(monthPnlPage * itemsPerPage, (monthPnlPage + 1) * itemsPerPage)
+          .reverse();
+
+        return (
+          <Row className="mb-4">
+            <Col md={12}>
+              <Card className="shadow-sm">
+                <Card.Header style={{ background: 'linear-gradient(135deg, #0f2027 0%, #1a3a2a 50%, #0f2027 100%)', color: 'white' }}>
+                  <div className="d-flex align-items-center justify-content-between">
+                    <h5 className="mb-0">📅 Monthly P&amp;L</h5>
+                    {totalPages > 1 && (
+                      <small style={{ opacity: 0.7, fontSize: '0.8rem' }}>
+                        {monthPnlPage === 0 ? 'Latest' : `${monthPnlPage + 1} / ${totalPages}`}
+                      </small>
+                    )}
+                  </div>
+                </Card.Header>
+                <Card.Body>
+                  <div
+                    className="monthly-pnl-grid"
+                    style={{ gridTemplateColumns: `repeat(${itemsPerPage}, 1fr)` }}
+                  >
+                    {currentPageMonths.map(({ key, profit }) => {
+                      const isZero = profit === 0;
+                      const isProfit = profit > 0;
+                      const isCurrentMonth = key === currentMonthKey;
+                      return (
+                        <div
+                          key={key}
+                          className={`monthly-pnl-box${isCurrentMonth ? ' monthly-pnl-box--active' : ''}`}
+                        >
+                          <div className="monthly-pnl-month">{key.toUpperCase()}</div>
+                          <div className={`monthly-pnl-value ${isZero ? 'monthly-pnl-zero' : isProfit ? 'monthly-pnl-profit' : 'monthly-pnl-loss'}`}>
+                            {isZero
+                              ? '₹0'
+                              : `${isProfit ? '+' : '−'}₹${Math.abs(profit).toFixed(0)}`}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {totalPages > 1 && (
+                    <div className="d-flex justify-content-center align-items-center gap-3 mt-3">
+                      <button
+                        className="btn btn-sm btn-outline-secondary"
+                        onClick={() => setMonthPnlPage(p => Math.min(p + 1, totalPages - 1))}
+                        disabled={monthPnlPage >= totalPages - 1}
+                      >
+                        ← Older
+                      </button>
+                      <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                        {monthPnlPage + 1} / {totalPages}
+                      </span>
+                      <button
+                        className="btn btn-sm btn-outline-secondary"
+                        onClick={() => setMonthPnlPage(p => Math.max(p - 1, 0))}
+                        disabled={monthPnlPage === 0}
+                      >
+                        Newer →
+                      </button>
+                    </div>
+                  )}
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+        );
+      })()}
 
       {/* ===== LESSONS LEARNED ===== */}
       {lessonsData.length > 0 && (

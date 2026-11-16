@@ -826,6 +826,89 @@
 }
 
 /* =========================================
+   MONTHLY P&L GRID
+   ========================================= */
+.monthly-pnl-grid {
+  display: grid;
+  /* grid-template-columns set via inline style (responsive via React state) */
+  gap: 14px;
+}
+
+.monthly-pnl-box {
+  background: var(--bg-surface2);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 18px 12px 14px;
+  text-align: center;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  cursor: default;
+}
+
+.monthly-pnl-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+}
+
+.monthly-pnl-box--active {
+  background: linear-gradient(135deg, #1db96a 0%, #15a05a 100%);
+  border-color: #1db96a;
+  box-shadow: 0 4px 16px rgba(29, 185, 106, 0.35);
+}
+
+.monthly-pnl-month {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.monthly-pnl-box--active .monthly-pnl-month {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.monthly-pnl-value {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.monthly-pnl-profit {
+  color: #22c55e;
+}
+
+.monthly-pnl-loss {
+  color: #ef4444;
+}
+
+.monthly-pnl-zero {
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.monthly-pnl-box--active .monthly-pnl-profit,
+.monthly-pnl-box--active .monthly-pnl-loss,
+.monthly-pnl-box--active .monthly-pnl-zero {
+  color: #ffffff;
+  opacity: 1;
+}
+
+@media (max-width: 480px) {
+  .monthly-pnl-grid {
+    gap: 8px;
+  }
+
+  .monthly-pnl-box {
+    padding: 14px 8px 10px;
+  }
+
+  .monthly-pnl-value {
+    font-size: 0.88rem;
+  }
+}
+
+/* =========================================
    ANIMATIONS
    ========================================= */
 @keyframes fadeInUp {
